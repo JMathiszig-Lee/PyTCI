@@ -54,8 +54,10 @@ for row in csv.reader(read):
         #do a comparison with x1 and store it somewhere
         pred_cp = patient.x1
         newerror = cp - pred_cp
+        # TODO: Calculate error, e.g. RMS
+        rmserror = 0
         # rmserror = SQRT(newerror**)
-        # totalmeasurements ++
-        # totalerror = totalerror + rmserror
+        totalmeasurements += 1
+        totalerror = totalerror + rmserror
 
     previous_time_mins = time_mins
