@@ -11,6 +11,7 @@ pid = 0
 totalerror = 0
 totalmeasurements = 0
 pid = 0
+previous_time_mins = 0
 #pull demographics
 for row in csv.reader(read):
     newid = row[0]
@@ -37,18 +38,24 @@ for row in csv.reader(read):
 
     mg = float(row[3])
     rate = float(row[4])
-    print rate
     cp = float(row[2])
-    time = mg / rate
+
+    time_mins = float(row[1])
+
+    seconds_since_last_measurement = int((time_mins - previous_time_mins) * 60)
+
+    for t in range(seconds_since_last_measurement):
+        patient.wait_time(1)
 
     if cp == 0:
         #no plasma concentration so calculate and move on
         patient.give_drug(mg)
-        patient.wait_time(time)
     else:
         #do a comparison with x1 and store it somewhere
-        predcp = patient.x1
+        pred_cp = patient.x1
         newerror = cp - pred_cp
         # rmserror = SQRT(newerror**)
         # totalmeasurements ++
         # totalerror = totalerror + rmserror
+
+    previous_time_mins = time_mins
