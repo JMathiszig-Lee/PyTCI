@@ -8,6 +8,9 @@ read = open(csvfile, 'r')
 #read first line
 read.readline()
 pid = 0
+totalerror = 0
+totalmeasurements = 0
+pid = 0
 #pull demographics
 for row in csv.reader(read):
     newid = row[0]
@@ -15,26 +18,28 @@ for row in csv.reader(read):
         #still on same patient, carry on
         print 'oldpatient'
     else:
-        #save mean error from this patient
-        meanerror = totalerror / totalmeasurements
-        #do something with this like save it to a file database?
+        if pid != 0:
+            #save mean error from this patient
+            meanerror = totalerror / totalmeasurements
+            #do something with this like save it to a file database?
 
         #new patient, reset compartments
         pid = newid
-        age = row[6]
-        weight = row[7]
-        height = row[8]
+        age = float(row[6])
+        weight = float(row[7])
+        height = float(row[8])
+        # TODO: Convert 1/2 to m/f, and validate in PatientState
         sex = row[9]
 
         patient = PatientState.with_schnider_params(age, weight, height, sex)
         totalmeasurements = 0
         totalerror = 0
 
-    mg = row[3]
-    rate = row[4]
-    cp = row[2]
-    cp = float(cp)
-    time = float(mg) / float(rate)
+    mg = float(row[3])
+    rate = float(row[4])
+    print rate
+    cp = float(row[2])
+    time = mg / rate
 
     if cp == 0:
         #no plasma concentration so calculate and move on
@@ -44,6 +49,6 @@ for row in csv.reader(read):
         #do a comparison with x1 and store it somewhere
         predcp = patient.x1
         newerror = cp - pred_cp
-        rmserror = SQRT(newerror**)
-        totalmeasurements ++
-        totalerror = totalerror + rmserror
+        # rmserror = SQRT(newerror**)
+        # totalmeasurements ++
+        # totalerror = totalerror + rmserror
