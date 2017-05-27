@@ -1,64 +1,55 @@
-from scipy.optimize import fsolve
-# from scipy.optimize import odeint
-import math
-
-from scipy.integrate import odeint
+import numpy as np
+from scipy.optimize import basinhopping
 
 from patient_state import PatientState
 
 
 def solve():
-    starting_params = {
-            'k10a': 0.443,
-            'k10b': 0.0107,
-            'k10c': -0.0159,
-            'k10d': 0.0062,
-            'k12a': 0.302,
-            'k12b': -0.0056,
-            'k13a': 0.196,
-            'k21a': 1.29,
-            'k21b': -0.024,
-            'k21c': 18.9,
-            'k21d': -0.391,
-            'k31a': 0.0035,
-            'keo': 0.456,
-            'weightoffset': 77,
-            'lbmoffset': 59,
-            'ageoffset': 53,
-            'heightoffset': 177
-        }
+    starting_params = PatientState.schnider_params()
+
+    params_array = convert_params_structure_to_vector(starting_params)
+
+    result = basinhopping(find_lsq_for_all_patients, params_array)
+    return result.x
 
 
+def get_patients():
+    return [{
+        'age': 60,
+        'expected_result': 0,
+        'weight': 70,
+        'height': 180,
+        'sex': 'm'
+    }]
 
-def rate_equations(params):
-    for patient in patients:
+
+def convert_vector_to_params_structure(params_vector):
+    # ToDo: need to construct params object in a well-defined way
+    pass
+
+
+def convert_params_structure_to_vector(params):
+    # ToDo: order of dictionary items is not well defined
+    params_list = [v for k, v in params.items()]
+    return np.array(params_list)
+
+
+def find_lsq_for_all_patients(params_vector):
+    params = convert_vector_to_params_structure(params_vector)
+    total_lsq = 0
+    for patient in get_patients():
         result = solve_for_patient(patient, params)
-        diff = (result - expected_result) ** 2
+        residual = result - patient['expected_result']
+        total_lsq += residual ** 2
 
 
-def solve_for_patient(params):
-    patient = PatientState(50, 70, 180, "m", params)
-    print "Initial state: " + str(patient)
-
+def solve_for_patient(patient, params):
+    patient = PatientState(patient['age'], patient['weight'], patient['height'], patient['sex'], params)
     patient.give_drug(92.60001)
-    print "After giving drug: " + str(patient)
-
     for t in range(130):
         patient.wait_time(1)
-        print "After 1 sec: " + str(patient)
-
     return patient.x1
 
-# scipy.integrate.odeint
-#
-#
-# def equations(p):
-#     x, y = p
-#     return x+y**2-4, math.exp(x) + x*y - 3
-#
-# def solve():
-#
-# x, y = fsolve(equations, (1, 1))
-#
-# print equations((x, y))
-#
+
+result = solve()
+print result
