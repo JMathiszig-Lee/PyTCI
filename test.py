@@ -1,7 +1,7 @@
 from patient_state import PatientState
 import re
 
-patient = PatientState(34, 46.3, 157.5, "f")
+patient = PatientState.with_schneider_params(34, 46.3, 157.5, "f")
 print "Initial state: " + str(patient)
 
 patient.give_drug(92.60001)
