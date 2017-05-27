@@ -26,7 +26,7 @@ for row in csv.reader(read):
         height = row[8]
         sex = row[9]
 
-        patient = PatientState.with_schneider_params(age, weight, height, sex)
+        patient = PatientState.with_schnider_params(age, weight, height, sex)
         totalmeasurements = 0
         totalerror = 0
 

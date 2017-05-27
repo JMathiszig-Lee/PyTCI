@@ -43,7 +43,13 @@ class PatientState:
         self.xeo = current_xeo + (-self.keo * current_xeo + self.keo * current_x1) * time_seconds
 
     @staticmethod
-    def with_schneider_params(age, weight, height, sex):
+    def with_schnider_params(age, weight, height, sex):
+        params = PatientState.schnider_params()
+
+        return PatientState(age, weight, height, sex, params)
+
+    @staticmethod
+    def schnider_params():
         params = {
             'k10a': 0.443,
             'k10b': 0.0107,
@@ -64,8 +70,7 @@ class PatientState:
             'lbm_offset': 59,
             'height_offset': 177
         }
-
-        return PatientState(age, weight, height, sex, params)
+        return params
 
     def __lean_body_mass(self, weight, height, sex):
         # TODO: Use better equation to calculate lean body mass
@@ -79,7 +84,7 @@ class PatientState:
 
 
 if __name__ == '__main__':
-    patient = PatientState.with_schneider_params(50, 70, 180, "m")
+    patient = PatientState.with_schnider_params(50, 70, 180, "m")
     print "Initial state: " + str(patient)
 
     patient.give_drug(92.60001)
