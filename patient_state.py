@@ -30,10 +30,15 @@ class PatientState:
         self.x1 = self.x1 + drug_milligrams / self.v1
 
     def wait_time(self, time_seconds):
-        self.x1 = self.x1 + (self.k21 * self.x2 + -(self.k12) * self.x1 + self.k31 * self.x3 + -(self.k13) * self.x1 - self.k10 * self.x1) * time_seconds
-        self.x2 = self.x2 + (-self.k21 * self.x2 + self.k12 * self.x1) * time_seconds
-        self.x3 = self.x3 + (-self.k31 * self.x3 + self.k13 * self.x1) * time_seconds
-        self.xeo = self.xeo + (-self.keo * self.xeo + self.keo * self.x1) * time_seconds
+        current_x1 = self.x1
+        current_x2 = self.x2
+        current_x3 = self.x3
+        current_xeo = self.xeo
+
+        self.x1 = current_x1 + (self.k21 * current_x2 - self.k12 * current_x1 + self.k31 * current_x3 - self.k13 * current_x1 - self.k10 * current_x1) * time_seconds
+        self.x2 = current_x2 + (-self.k21 * current_x2 + self.k12 * current_x1) * time_seconds
+        self.x3 = current_x3 + (-self.k31 * current_x3 + self.k13 * current_x1) * time_seconds
+        self.xeo = current_xeo + (-self.keo * current_xeo + self.keo * current_x1) * time_seconds
 
     def __lean_body_mass(self, weight, height, sex):
         # TODO: Use better equation to calculate lean body mass
