@@ -4,25 +4,19 @@ class PatientState:
     # height: cm
     # sex: 'm' or 'f'
     def __init__(self, age, weight, height, sex):
-        is_male = sex == "m"
-
-        # TODO: Use better equation to calculate lean body mass
-        if (is_male):
-            lbm = 1.1 * weight - 128 * ((weight/height) * (weight/height))
-        else:
-            lbm = 1.07 * weight - 148 * ((weight/height) * (weight/height))
+        lean_body_mass = self.__lean_body_mass(weight, height, sex)
 
         self.v1 = 4.27
         # TODO: Work out why v2 and v3 are not used in the algorithm
         v2 = 18.9 - 0.391 * (age - 53)
         v3 = 238
 
-        #
+        # Initial concentration is zero in all components
         self.x1 = 0
         self.x2 = 0
         self.x3 = 0
 
-        self.k10 = 0.443 + 0.0107 * (weight - 77) - 0.0159 * (lbm - 59) + 0.0062 * (height - 177)
+        self.k10 = 0.443 + 0.0107 * (weight - 77) - 0.0159 * (lean_body_mass - 59) + 0.0062 * (height - 177)
         self.k12 = 0.302 - 0.0056 * (age - 53)
         self.k13 = 0.196
         self.k21 = (1.29 - 0.024 * (age - 53)) / (18.9 - 0.391 * (age - 53))
@@ -40,6 +34,13 @@ class PatientState:
         self.x2 = self.x2 + (-self.k21 * self.x2 + self.k12 * self.x1) * time_seconds
         self.x3 = self.x3 + (-self.k31 * self.x3 + self.k13 * self.x1) * time_seconds
         self.xeo = self.xeo + (-self.keo * self.xeo + self.keo * self.x1) * time_seconds
+
+    def __lean_body_mass(self, weight, height, sex):
+        # TODO: Use better equation to calculate lean body mass
+        if sex == "m":
+            return 1.1 * weight - 128 * ((weight/height) * (weight/height))
+        else:
+            return 1.07 * weight - 148 * ((weight/height) * (weight/height))
 
     def __repr__(self):
         return "PatientState(x1=%f, x2=%f, x3=%f, xeo=%f)" % (self.x1, self.x2, self.x3, self.xeo)
