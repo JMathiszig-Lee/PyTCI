@@ -29,16 +29,16 @@ class PatientState:
     def give_drug(self, drug_milligrams):
         self.x1 = self.x1 + drug_milligrams / self.v1
 
-    def wait_time(self, time_seconds):
+    def wait_time(self, time_minutes):
         current_x1 = self.x1
         current_x2 = self.x2
         current_x3 = self.x3
         current_xeo = self.xeo
 
-        self.x1 = current_x1 + (self.k21 * current_x2 - self.k12 * current_x1 + self.k31 * current_x3 - self.k13 * current_x1 - self.k10 * current_x1) * time_seconds
-        self.x2 = current_x2 + (-self.k21 * current_x2 + self.k12 * current_x1) * time_seconds
-        self.x3 = current_x3 + (-self.k31 * current_x3 + self.k13 * current_x1) * time_seconds
-        self.xeo = current_xeo + (-self.keo * current_xeo + self.keo * current_x1) * time_seconds
+        self.x1 = current_x1 + (self.k21 * current_x2 - self.k12 * current_x1 + self.k31 * current_x3 - self.k13 * current_x1 - self.k10 * current_x1) * time_minutes
+        self.x2 = current_x2 + (-self.k21 * current_x2 + self.k12 * current_x1) * time_minutes
+        self.x3 = current_x3 + (-self.k31 * current_x3 + self.k13 * current_x1) * time_minutes
+        self.xeo = current_xeo + (-self.keo * current_xeo + self.keo * current_x1) * time_minutes
 
     def __lean_body_mass(self, weight, height, sex):
         # TODO: Use better equation to calculate lean body mass
@@ -55,14 +55,9 @@ if __name__ == '__main__':
     patient = PatientState(50, 70, 180, "m")
     print "Initial state: " + str(patient)
 
-    patient.give_drug(50)
+    patient.give_drug(92.60001)
     print "After giving drug: " + str(patient)
 
-    patient.wait_time(1)
-    print "After 1 second: " + str(patient)
-
-    patient.wait_time(60)
-    print "After another 1 minute: " + str(patient)
-
-    patient.wait_time(3600)
-    print "After another 1 hour: " + str(patient)
+    for t in range(200):
+        patient.wait_time(2)
+        print "After 2 mins: " + str(patient)
