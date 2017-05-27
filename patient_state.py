@@ -32,14 +32,14 @@ class PatientState:
 
         self.xeo = 0.0
 
-    def giveDrug(self, drugMilligrams):
-        self.x1 = self.x1 + drugMilligrams / self.v1
+    def give_drug(self, drug_milligrams):
+        self.x1 = self.x1 + drug_milligrams / self.v1
 
-    def waitTime(self, timeSeconds):
-        self.x1 = self.x1 + (self.k21 * self.x2 + -(self.k12) * self.x1 + self.k31 * self.x3 + -(self.k13) * self.x1 - self.k10 * self.x1) * timeSeconds
-        self.x2 = self.x2 + (-self.k21 * self.x2 + self.k12 * self.x1) * timeSeconds
-        self.x3 = self.x3 + (-self.k31 * self.x3 + self.k13 * self.x1) * timeSeconds
-        self.xeo = self.xeo + (-self.keo * self.xeo + self.keo * self.x1) * timeSeconds
+    def wait_time(self, time_seconds):
+        self.x1 = self.x1 + (self.k21 * self.x2 + -(self.k12) * self.x1 + self.k31 * self.x3 + -(self.k13) * self.x1 - self.k10 * self.x1) * time_seconds
+        self.x2 = self.x2 + (-self.k21 * self.x2 + self.k12 * self.x1) * time_seconds
+        self.x3 = self.x3 + (-self.k31 * self.x3 + self.k13 * self.x1) * time_seconds
+        self.xeo = self.xeo + (-self.keo * self.xeo + self.keo * self.x1) * time_seconds
 
     def __repr__(self):
         return "PatientState(x1=%f, x2=%f, x3=%f, xeo=%f)" % (self.x1, self.x2, self.x3, self.xeo)
@@ -49,14 +49,14 @@ if __name__ == '__main__':
     patient = PatientState(50, 70, 180, "m")
     print "Initial state: " + str(patient)
 
-    patient.giveDrug(50)
+    patient.give_drug(50)
     print "After giving drug: " + str(patient)
 
-    patient.waitTime(1)
+    patient.wait_time(1)
     print "After 1 second: " + str(patient)
 
-    patient.waitTime(60)
+    patient.wait_time(60)
     print "After another 1 minute: " + str(patient)
 
-    patient.waitTime(3600)
+    patient.wait_time(3600)
     print "After another 1 hour: " + str(patient)
