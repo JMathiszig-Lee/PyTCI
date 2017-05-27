@@ -16,29 +16,29 @@ class PatientState:
         self.x2 = 0
         self.x3 = 0
 
-        self.k10 = 0.443 + 0.0107 * (weight - 77) - 0.0159 * (lean_body_mass - 59) + 0.0062 * (height - 177)
-        self.k12 = 0.302 - 0.0056 * (age - 53)
-        self.k13 = 0.196
-        self.k21 = (1.29 - 0.024 * (age - 53)) / (18.9 - 0.391 * (age - 53))
-        self.k31 = 0.0035
+        self.k10 = (0.443 + 0.0107 * (weight - 77) - 0.0159 * (lean_body_mass - 59) + 0.0062 * (height - 177)) / 60
+        self.k12 = (0.302 - 0.0056 * (age - 53)) / 60
+        self.k13 = 0.196 / 60
+        self.k21 = ((1.29 - 0.024 * (age - 53)) / (18.9 - 0.391 * (age - 53))) /60
+        self.k31 = 0.0035 / 60
 
-        self.keo = 0.456
+        self.keo = 0.456 / 60
 
         self.xeo = 0.0
 
     def give_drug(self, drug_milligrams):
         self.x1 = self.x1 + drug_milligrams / self.v1
 
-    def wait_time(self, time_minutes):
+    def wait_time(self, time_seconds):
         current_x1 = self.x1
         current_x2 = self.x2
         current_x3 = self.x3
         current_xeo = self.xeo
 
-        self.x1 = current_x1 + (self.k21 * current_x2 - self.k12 * current_x1 + self.k31 * current_x3 - self.k13 * current_x1 - self.k10 * current_x1) * time_minutes
-        self.x2 = current_x2 + (-self.k21 * current_x2 + self.k12 * current_x1) * time_minutes
-        self.x3 = current_x3 + (-self.k31 * current_x3 + self.k13 * current_x1) * time_minutes
-        self.xeo = current_xeo + (-self.keo * current_xeo + self.keo * current_x1) * time_minutes
+        self.x1 = current_x1 + (self.k21 * current_x2 - self.k12 * current_x1 + self.k31 * current_x3 - self.k13 * current_x1 - self.k10 * current_x1) * time_seconds
+        self.x2 = current_x2 + (-self.k21 * current_x2 + self.k12 * current_x1) * time_seconds
+        self.x3 = current_x3 + (-self.k31 * current_x3 + self.k13 * current_x1) * time_seconds
+        self.xeo = current_xeo + (-self.keo * current_xeo + self.keo * current_x1) * time_seconds
 
     def __lean_body_mass(self, weight, height, sex):
         # TODO: Use better equation to calculate lean body mass
@@ -58,6 +58,6 @@ if __name__ == '__main__':
     patient.give_drug(92.60001)
     print "After giving drug: " + str(patient)
 
-    for t in range(200):
-        patient.wait_time(2)
-        print "After 2 mins: " + str(patient)
+    for t in range(100000):
+        patient.wait_time(1)
+        print "After 1 sec: " + str(patient)
