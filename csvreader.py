@@ -35,8 +35,13 @@ def read_patient_csv():
             current_patient['age'] = float(row[6])
             current_patient['weight'] = float(row[7])
             current_patient['height'] = float(row[8])
-            # TODO: Convert 1/2 to m/f, and validate in PatientState
-            current_patient['sex'] = row[9]
+            patient_sex_code = int(row[9])
+            if patient_sex_code == 1:
+                current_patient['sex'] = "m"
+            elif patient_sex_code == 2:
+                current_patient['sex'] = "m"
+            else:
+                raise ValueError("Unknown value for patient sex '%s'. Expected '1' or '2'" % sex)
 
     return patients
 

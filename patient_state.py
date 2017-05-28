@@ -73,6 +73,9 @@ class PatientState:
         return params
 
     def __lean_body_mass(self, weight, height, sex):
+        if sex != "m" and sex != "f":
+            raise ValueError("Unknown sex '%s'. This algorithm can only handle 'm' and 'f'. :(" % sex)
+
         # TODO: Use better equation to calculate lean body mass
         if sex == "m":
             return 1.1 * weight - self.params['weight_offset'] * ((weight/height) * (weight/height))
