@@ -72,7 +72,7 @@ def convert_params_structure_to_vector(params):
 
 
 def find_lsq_for_all_patients(params_vector):
-    params = convert_vector_to_params_structure(params_vector)
+    params = convert_vector_to_params_structure(params_vector.tolist())
     total_lsq = 0.0
     patient_list = get_patients()
     for patient in patient_list:

@@ -1,5 +1,6 @@
 from patient_state import PatientState
 
+
 def solve_for_patient(patient, params):
     print "Patient %s" % patient["id"]
 
