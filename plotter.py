@@ -21,66 +21,80 @@ def estimate_propofol(maxcount):
     totalmeasurements = 0
     previous_time_mins = 0
     #pull demographics
-
+    pid = 0
     truecp = []
     calccp = []
     schnider = []
     times = []
     for row in csv.reader(read):
+        newid = row[1]
+        if pid != newid:
+            age = float(row[6])
+            weight = float(row[7])
+            height = float(row[8])
+            sex = row[9]
+            if sex == 1:
+                sex = 'm'
+            else:
+                sex = 'f'
 
-        age = float(row[6])
-        weight = float(row[7])
-        height = float(row[8])
-        # TODO: Convert 1/2 to m/f, and validate in PatientState
-        sex = row[9]
-        if sex == 1:
-            sex = 'm'
-        else:
-            sex = 'f'
+            if count == 0:
+                patient = PatientState.with_schnider_params(age, weight, height, sex)
+            else:
+                v1      = 4.27 * np.random.normal(1, 0.2)
+                k10a    = 0.443 * np.random.normal(1, 0.1)
+                k10b    = 0.0107 * np.random.normal(1, 0.1)
+                k10c    = -0.0159 * np.random.normal(1, 0.1)
+                k13     = 0.196 * np.random.normal(1, 0.1)
 
-        if count == 0:
-            patient = PatientState.with_schnider_params(age, weight, height, sex)
-        else:
-            v1      = 4.27 * np.random.normal(1, 0.2)
-            k10a    = 0.443 * np.random.normal(1, 0.1)
-            k10b    = 0.0107 * np.random.normal(1, 0.1)
-            k10c    = -0.0159 * np.random.normal(1, 0.1)
-            k13     = 0.196 * np.random.normal(1, 0.1)
+                params = {
+                    'k10a': k10a,
+                    'k10b': k10b,
+                    'k10c': k10c,
+                    'k10d': 0.0062,
+                    'k12a': 0.302,
+                    'k12b': -0.0056,
+                    'k13': k13,
+                    'k21a': 1.29,
+                    'k21b': -0.024,
+                    'k21c': 18.9,
+                    'k21d': -0.391,
+                    'k31': 0.0035,
+                    'v1': v1,
+                    'v3': 238,
+                    'age_offset': 53,
+                    'weight_offset': 77,
+                    'lbm_offset': 59,
+                    'height_offset': 177
+                }
+                patient = PatientState(age, weight, height, sex, params)
 
-            params = {
-                'k10a': k10a,
-                'k10b': k10b,
-                'k10c': k10c,
-                'k10d': 0.0062,
-                'k12a': 0.302,
-                'k12b': -0.0056,
-                'k13': k13,
-                'k21a': 1.29,
-                'k21b': -0.024,
-                'k21c': 18.9,
-                'k21d': -0.391,
-                'k31': 0.0035,
-                'v1': v1,
-                'v3': 238,
-                'age_offset': 53,
-                'weight_offset': 77,
-                'lbm_offset': 59,
-                'height_offset': 177
-            }
-            patient = PatientState(age, weight, height, sex, params)
+            pid = newid
 
         mg = float(row[3])
         rate = float(row[4])
         cp = float(row[2])
 
+        print "mg" + str(mg)
+        print "rate" + str(rate)
+        print "cp" + str(cp)
+
         patient.give_drug(mg)
+        #print patient.x1
 
         time_mins = float(row[1])
+
         seconds_since_last_measurement = int((time_mins - previous_time_mins) * 60)
+        print "**seconds**"
+        #seconds_since_last_measurement = (mg / rate) * 60
+        print time_mins
+        print previous_time_mins
+
+        print "sslm " + str(seconds_since_last_measurement)
 
         for t in range(seconds_since_last_measurement):
             patient.wait_time(1)
-
+        print patient.x1
         if cp != 0:
             #do a comparison with x1 and store it somewhere
             pred_cp = patient.x1
@@ -103,23 +117,23 @@ def estimate_propofol(maxcount):
 
 
 
-something = estimate_propofol(1)
+#something = estimate_propofol(1)
 someone = estimate_propofol(0)
-#data = (someone[0], someone[3], someone[1], someone[3], something[2], someone[3])
-data = (someone[3], someone[1], someone[3], something[2], someone[3], someone[0])
+print someone
+#data = (someone[3], someone[1], someone[3], something[2], someone[3], someone[0])
 
 
 x = np.array(someone[3])
 y1 = np.array(someone[0])
 y2 = np.array(someone[1])
-y3 = np.array(something[2])
-print data
-print x
+#y3 = np.array(something[2])
+#print data
+#print x
 
 # plt.plot(y1, x)
 # plt.plot(x, y2)
 # plt.plot(x, y3)
-plt.plot(data)
+#plt.plot(data)
 plt.axis([0, 104, 0, 20])
 def update(data):
     line.set_ydata(data)
@@ -131,4 +145,4 @@ def data_gen():
         yield np.random.rand(10)
 
 #ani = animation.FuncAnimation(fig, update, data_gen, interval=100)
-plt.show()
+#plt.show()
