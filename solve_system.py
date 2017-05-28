@@ -75,8 +75,7 @@ def find_lsq_for_all_patients(params_vector):
     total_lsq = 0
     patient_list = get_patients()
     for patient in patient_list:
-        # TODO: Use params rather than schnider_params
-        patient_error = solve_for_patient(patient, PatientState.schnider_params())
+        patient_error = solve_for_patient(patient, params)
         total_lsq += patient_error
     return total_lsq / len(patient_list)
 
