@@ -1,10 +1,13 @@
 from patient_state import PatientState
 
-
 def solve_for_patient(patient, params):
     print "Patient %s" % patient["id"]
 
     patient_model = PatientState(patient['age'], patient['weight'], patient['height'], patient['sex'], params)
+
+    results = {
+        "predicted_and_measured": []
+    }
 
     total_lsq_error = 0
     total_measurements = 0
@@ -25,6 +28,8 @@ def solve_for_patient(patient, params):
             predicted_cp = patient_model.x1
             error = event['cp'] - predicted_cp
 
+            results["predicted_and_measured"].append((predicted_cp, event["cp"]))
+
             total_lsq_error += error ** 2
             total_measurements += 1
         elif event["type"] == "start_infusion":
@@ -36,4 +41,6 @@ def solve_for_patient(patient, params):
 
         previous_time_mins = event['time_mins']
 
-    return total_lsq_error / total_measurements
+    results["error"] = total_lsq_error / total_measurements
+
+    return results

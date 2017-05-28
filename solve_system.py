@@ -76,7 +76,7 @@ def find_lsq_for_all_patients(params_vector):
     total_lsq = 0.0
     patient_list = get_patients()
     for patient in patient_list:
-        patient_error = solve_for_patient(patient, params)
+        patient_error = solve_for_patient(patient, params)["error"]
         total_lsq += patient_error
     return total_lsq / len(patient_list)
 
@@ -94,8 +94,8 @@ def test():
 
     sample_patient = get_patients()
 
-    schnider_solution = solve_for_patient(sample_patient, schnider_params)
-    solved_solution = solve_for_patient(sample_patient, solved_params)
+    schnider_solution = solve_for_patient(sample_patient, schnider_params)["error"]
+    solved_solution = solve_for_patient(sample_patient, solved_params)["error"]
 
     print "Schnider solution:"
     print schnider_solution
