@@ -73,9 +73,9 @@ def mute_against_real_data():
 
 if __name__ == '__main__':
     fig1 = plt.figure()
+    schnider= test_against_real_data()
     def update(i):
         fig1.clear()
-        schnider= test_against_real_data()
         mutant = mute_against_real_data()
         ys = (schnider[0], mutant[0])
         xs = (1, 2)
