@@ -40,17 +40,15 @@ for row in csv.reader(read):
     rate = float(row[4])
     cp = float(row[2])
 
-    time_mins = float(row[1])
+    patient.give_drug(mg)
 
+    time_mins = float(row[1])
     seconds_since_last_measurement = int((time_mins - previous_time_mins) * 60)
 
     for t in range(seconds_since_last_measurement):
         patient.wait_time(1)
 
-    if cp == 0:
-        #no plasma concentration so calculate and move on
-        patient.give_drug(mg)
-    else:
+    if cp != 0:
         #do a comparison with x1 and store it somewhere
         pred_cp = patient.x1
         newerror = cp - pred_cp
