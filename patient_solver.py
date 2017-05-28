@@ -2,7 +2,7 @@ from patient_state import PatientState
 
 
 def solve_for_patient(patient, params):
-    print "Patient %s" % patient["id"]
+    #print "Patient %s" % patient["id"]
 
     patient_model = PatientState(patient['age'], patient['weight'], patient['height'], patient['sex'], params)
 
@@ -27,6 +27,7 @@ def solve_for_patient(patient, params):
 
             total_lsq_error += error ** 2
             total_measurements += 1
+            #print "Predicted: %f, Actual: %f" % (predicted_cp, event['cp'])
         elif event["type"] == "start_infusion":
             amount_mg = event["propofol_mg"]
             current_dose_mg_per_sec = event["rate_mg_per_min"] / 60
