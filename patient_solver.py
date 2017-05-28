@@ -4,21 +4,33 @@ def solve_for_patient(patient, params):
     print "Patient %s" % patient["id"]
 
     patient_model = PatientState(patient['age'], patient['weight'], patient['height'], patient['sex'], params)
-    patient_model.give_drug(patient['propofol_mg'])
-
-    previous_time_mins = 0
 
     total_lsq_error = 0
     total_measurements = 0
 
-    for measurement in patient['measurements']:
-        for t in range(int((measurement['time_mins'] - previous_time_mins) * 60)):
+    previous_time_mins = 0
+    current_dose_mg_per_sec = 0
+    infusion_seconds_remaining = 0
+
+    for event in patient['events']:
+        for t in range(int((event['time_mins'] - previous_time_mins) * 60)):
+            if infusion_seconds_remaining > 0:
+                patient_model.give_drug(current_dose_mg_per_sec)
+                infusion_seconds_remaining -= 1
+
             patient_model.wait_time(1)
 
-        predicted_cp = patient_model.x1
-        error = measurement['cp'] - predicted_cp
+            if event["type"] == "measurement":
+                predicted_cp = patient_model.x1
+                error = event['cp'] - predicted_cp
 
-        total_lsq_error += error ** 2
-        total_measurements += 1
+                total_lsq_error += error ** 2
+                total_measurements += 1
+            elif event["type"] == "start_infusion":
+                amount_mg = event["propofol_mg"]
+                current_dose_mg_per_sec = event["rate_mg_per_min"] / 60
+                infusion_seconds_remaining = amount_mg / current_dose_mg_per_sec
+            else:
+                raise ValueError("Unknown patient event type '%s'. Expected 'measurement' or 'start_infusion'" % event["type"])
 
     return total_lsq_error / total_measurements
