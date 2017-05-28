@@ -81,7 +81,7 @@ def find_lsq_for_all_patients(params_vector):
         result = solve_for_patient(patient, params)
         residual = result - patient['expected_result']
         total_lsq += residual ** 2
-    return total_lsq/len(patient_list)
+    return total_lsq / len(patient_list)
 
 
 def solve_for_patient(patient, params):
@@ -96,7 +96,7 @@ def test():
     solve_result = solve()
     solved_params = convert_vector_to_params_structure(solve_result)
 
-    schnider_params =PatientState.schnider_params()
+    schnider_params = PatientState.schnider_params()
     print "Schneider params:"
     print schnider_params
 
@@ -116,5 +116,6 @@ def test():
 
     print "Expected solution:"
     print sample_patient['expected_result']
+
 
 test()
