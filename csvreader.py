@@ -22,9 +22,9 @@ def read_patient_csv():
             patients.append(current_patient)
 
             current_patient['id'] = pid
-            current_patient['age'] = float(row[6])
-            current_patient['weight'] = float(row[7])
-            current_patient['height'] = float(row[8])
+            current_patient['age'] = parse_age(row[6], pid)
+            current_patient['weight'] = parse_weight(row[7], pid)
+            current_patient['height'] = parse_height(row[8], pid)
             current_patient['sex'] = __patient_sex(int(row[9]))
 
         cp = float(row[2])
@@ -51,6 +51,30 @@ def read_patient_csv():
             current_patient["events"].append(event)
 
     return patients
+
+def parse_age(raw_age, pid):
+    age = float(raw_age)
+
+    if age < 0 or age > 150:
+        raise ValueError("Invalid patient age '%s'for patient %s" % (raw_age, pid))
+
+    return age
+
+def parse_weight(raw_weight, pid):
+    weight = float(raw_weight)
+
+    if weight < 1:
+        raise ValueError("Invalid patient weight '%s' for patient %s" % (raw_weight, pid))
+
+    return weight
+
+def parse_height(raw_height, pid):
+    height = float(raw_height)
+
+    if height < 1:
+        raise ValueError("Invalid patient weight '%s'for patient %s" % (raw_height, pid))
+
+    return height
 
 def __patient_sex(code):
     if code == 1:
