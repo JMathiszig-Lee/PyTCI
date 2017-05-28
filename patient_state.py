@@ -14,9 +14,9 @@ class PatientState:
         v3 = params['v3']
 
         # Initial concentration is zero in all components
-        self.x1 = 0
-        self.x2 = 0
-        self.x3 = 0
+        self.x1 = 0.0
+        self.x2 = 0.0
+        self.x3 = 0.0
 
         self.k10 = (params['k10a'] + params['k10b'] * (weight - params['weight_offset']) + params['k10c'] * (lean_body_mass - params['lbm_offset']) + params['k10d'] * (height - params['height_offset'])) / 60
         self.k12 = (params['k12a'] + params['k12b'] * (age - params['age_offset'])) / 60
@@ -73,6 +73,9 @@ class PatientState:
         return params
 
     def __lean_body_mass(self, weight, height, sex):
+        if sex != "m" and sex != "f":
+            raise ValueError("Unknown sex '%s'. This algorithm can only handle 'm' and 'f'. :(" % sex)
+
         # TODO: Use better equation to calculate lean body mass
         if sex == "m":
             return 1.1 * weight - self.params['weight_offset'] * ((weight/height) * (weight/height))

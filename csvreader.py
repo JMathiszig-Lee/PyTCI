@@ -3,59 +3,49 @@ from patient_state import PatientState
 
 csvfile = "propofol.csv"
 
-read = open(csvfile, 'r')
+def read_patient_csv():
+    patients = []
 
-#read first line
-read.readline()
-pid = 0
-totalerror = 0
-totalmeasurements = 0
-pid = 0
-previous_time_mins = 0
-#pull demographics
-for row in csv.reader(read):
-    newid = row[0]
-    if newid == pid:
-        #still on same patient, carry on
-        print 'oldpatient'
-    else:
-        if pid != 0:
-            #save mean error from this patient
-            meanerror = totalerror / totalmeasurements
-            #do something with this like save it to a file database?
+    read = open(csvfile, 'r')
+    # Read header line
+    read.readline()
 
-        #new patient, reset compartments
-        pid = newid
-        age = float(row[6])
-        weight = float(row[7])
-        height = float(row[8])
-        # TODO: Convert 1/2 to m/f, and validate in PatientState
-        sex = row[9]
+    pid = None
+    current_patient = __build_new_patient()
 
-        patient = PatientState.with_schnider_params(age, weight, height, sex)
-        totalmeasurements = 0
-        totalerror = 0
+    for row in csv.reader(read):
+        newid = row[0]
 
-    mg = float(row[3])
-    rate = float(row[4])
-    cp = float(row[2])
+        if newid == pid:
+            measurement = {
+                "time_mins": float(row[1]),
+                "cp": float(row[2])
+            }
+            current_patient["measurements"].append(measurement)
+        else:
+            pid = newid
+            current_patient = __build_new_patient()
+            patients.append(current_patient)
 
-    patient.give_drug(mg)
+            # Assume that the first row for a patient contains the bolus
+            # TODO: Check that this is always true
+            current_patient['propofol_mg'] = float(row[3])
 
-    time_mins = float(row[1])
-    seconds_since_last_measurement = int((time_mins - previous_time_mins) * 60)
+            current_patient['id'] = pid
+            current_patient['age'] = float(row[6])
+            current_patient['weight'] = float(row[7])
+            current_patient['height'] = float(row[8])
+            patient_sex_code = int(row[9])
+            if patient_sex_code == 1:
+                current_patient['sex'] = "m"
+            elif patient_sex_code == 2:
+                current_patient['sex'] = "m"
+            else:
+                raise ValueError("Unknown value for patient sex '%s'. Expected '1' or '2'" % sex)
 
-    for t in range(seconds_since_last_measurement):
-        patient.wait_time(1)
+    return patients
 
-    if cp != 0:
-        #do a comparison with x1 and store it somewhere
-        pred_cp = patient.x1
-        newerror = cp - pred_cp
-        # TODO: Calculate error, e.g. RMS
-        rmserror = 0
-        # rmserror = SQRT(newerror**)
-        totalmeasurements += 1
-        totalerror = totalerror + rmserror
-
-    previous_time_mins = time_mins
+def __build_new_patient():
+    return {
+        "measurements": []
+    }
