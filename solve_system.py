@@ -92,7 +92,7 @@ def test():
     print "Solution params:"
     print solved_params
 
-    sample_patient = get_patients()[0]
+    sample_patient = get_patients()
 
     schnider_solution = solve_for_patient(sample_patient, schnider_params)
     solved_solution = solve_for_patient(sample_patient, solved_params)

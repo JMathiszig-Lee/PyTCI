@@ -33,4 +33,6 @@ def solve_for_patient(patient, params):
             else:
                 raise ValueError("Unknown patient event type '%s'. Expected 'measurement' or 'start_infusion'" % event["type"])
 
+        previous_time_mins = event['time_mins']
+
     return total_lsq_error / total_measurements
