@@ -3,6 +3,8 @@ from scipy.optimize import basinhopping
 
 from patient_state import PatientState
 
+from csvreader import read_patient_csv
+
 
 def solve():
     starting_params = PatientState.schnider_params()
@@ -14,25 +16,8 @@ def solve():
 
 
 def get_patients():
-    return [{
-        'age': 60,
-        'expected_result': 0,
-        'weight': 70,
-        'height': 180,
-        'sex': 'm',
-        # TODO: Are there patients who receive multiple boluses when their cp is non-zero?
-        'propofol_mg': 92.60001,
-        'measurements': [
-            {
-                'time_mins': 2.11,
-                'predicted_cp': 3.62
-            },
-            {
-                'time_mins': 4.01,
-                'predicted_cp': 1.33
-            }
-        ]
-    }]
+    # TODO: Memoize
+    return read_patient_csv();
 
 
 def convert_vector_to_params_structure(params_vector):
@@ -58,25 +43,27 @@ def find_lsq_for_all_patients(params_vector):
 
 
 def solve_for_patient(patient, params):
+    print "Patient %s" % patient["id"]
+
     patient_model = PatientState(patient['age'], patient['weight'], patient['height'], patient['sex'], params)
     patient_model.give_drug(patient['propofol_mg'])
 
     previous_time_mins = 0
 
-    totalerror = 0
+    total_lsq_error = 0
     total_measurements = 0
 
     for measurement in patient['measurements']:
         for t in range(int((measurement['time_mins'] - previous_time_mins) * 60)):
             patient_model.wait_time(1)
 
-        actual_cp = patient_model.x1
-        error = actual_cp - measurement['predicted_cp']
+        predicted_cp = patient_model.x1
+        error = measurement['cp'] - predicted_cp
 
-        totalerror += error
+        total_lsq_error += error ** 2
         total_measurements += 1
 
-    return totalerror / total_measurements
+    return total_lsq_error / total_measurements
 
 
 result = solve()
