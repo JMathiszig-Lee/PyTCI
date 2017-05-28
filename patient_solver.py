@@ -6,7 +6,7 @@ def solve_for_patient(patient, params):
     patient_model = PatientState(patient['age'], patient['weight'], patient['height'], patient['sex'], params)
 
     results = {
-        "predicted_and_measured": []
+        "cps": []
     }
 
     total_lsq_error = 0
@@ -28,7 +28,11 @@ def solve_for_patient(patient, params):
             predicted_cp = patient_model.x1
             error = event['cp'] - predicted_cp
 
-            results["predicted_and_measured"].append((predicted_cp, event["cp"]))
+            results["cps"].append({
+                "time_seconds": int(previous_time_mins * 60) + t,
+                "predicted_cp": predicted_cp,
+                "measured_cp": event['cp']
+            })
 
             total_lsq_error += error ** 2
             total_measurements += 1

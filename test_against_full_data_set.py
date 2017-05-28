@@ -9,8 +9,8 @@ def test_against_real_data():
 
     for patient in patients[6:7]:
         results = solve_for_patient(patient, params)
-        for result in results["predicted_and_measured"]:
-            print "predicted: %f, measured: %f" % result
+        for result in results["cps"]:
+            print "time: %f, predicted: %f, measured: %f" % (result["time_seconds"], result["predicted_cp"], result["measured_cp"])
 
 if __name__ == '__main__':
     test_against_real_data()
