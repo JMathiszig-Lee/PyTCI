@@ -16,7 +16,7 @@ def solve():
 def get_patients():
     return [{
         'age': 60,
-        'expected_result': 0,
+        'expected_result': 7.72,
         'weight': 70,
         'height': 180,
         'sex': 'm'
@@ -92,5 +92,29 @@ def solve_for_patient(patient, params):
     return patient.x1
 
 
-result = solve()
-print result
+def test():
+    solve_result = solve()
+    solved_params = convert_vector_to_params_structure(solve_result)
+
+    schnider_params =PatientState.schnider_params()
+    print "Schneider params:"
+    print schnider_params
+
+    print "Solution params:"
+    print solved_params
+
+    sample_patient = get_patients()[0]
+
+    schnider_solution = solve_for_patient(sample_patient, schnider_params)
+    solved_solution = solve_for_patient(sample_patient, solved_params)
+
+    print "Schnider solution:"
+    print schnider_solution
+
+    print "Solved solution:"
+    print solved_solution
+
+    print "Expected solution:"
+    print sample_patient['expected_result']
+
+test()
