@@ -1,5 +1,7 @@
 import numpy as np
-from scipy.optimize import basinhopping
+import cProfile
+
+from scipy.optimize import least_squares
 
 from patient_state import PatientState
 from patient_solver import solve_for_patient
@@ -12,13 +14,14 @@ def solve():
 
     params_array = convert_params_structure_to_vector(starting_params)
 
-    result = basinhopping(find_lsq_for_all_patients, params_array)
+    result = least_squares(get_residuals_for_all_patients, params_array, bounds=[-1000, 1000], ftol=1e-001, xtol=1e-001, gtol=1e-001, x_scale=1.0, max_nfev=1000, verbose=0)
     return result.x
 
 
 def get_patients():
     # TODO: Memoize
-    return read_patient_csv();
+    patients = read_patient_csv()
+    return patients
 
 
 def convert_vector_to_params_structure(params_vector):
@@ -72,13 +75,21 @@ def convert_params_structure_to_vector(params):
 
 
 def find_lsq_for_all_patients(params_vector):
-    params = convert_vector_to_params_structure(params_vector.tolist())
+    residuals = get_residuals_for_all_patients(params_vector)
     total_lsq = 0.0
+    for residual in residuals:
+        total_lsq += residual
+    return total_lsq / len(residuals)
+
+
+def get_residuals_for_all_patients(params_vector):
+    params = convert_vector_to_params_structure(params_vector.tolist())
+    residuals = []
     patient_list = get_patients()
     for patient in patient_list:
-        patient_error = solve_for_patient(patient, params)
-        total_lsq += patient_error
-    return total_lsq / len(patient_list)
+        patient_error = solve_for_patient(patient, params)["error"]
+        residuals.append(patient_error)
+    return residuals
 
 
 def test():
@@ -92,10 +103,10 @@ def test():
     print "Solution params:"
     print solved_params
 
-    sample_patient = get_patients()
+    sample_patient = get_patients()[0]
 
-    schnider_solution = solve_for_patient(sample_patient, schnider_params)
-    solved_solution = solve_for_patient(sample_patient, solved_params)
+    schnider_solution = solve_for_patient(sample_patient, schnider_params)["cps"]
+    solved_solution = solve_for_patient(sample_patient, solved_params)["cps"]
 
     print "Schnider solution:"
     print schnider_solution
@@ -103,9 +114,13 @@ def test():
     print "Solved solution:"
     print solved_solution
 
-    print "Expected solution:"
-    print sample_patient['expected_result']
+    # print "Expected solution:"
+    # print sample_patient['expected_result']
 
+
+def profile_test():
+    params_vector = PatientState.schnider_params()
+    find_lsq_for_all_patients(convert_params_structure_to_vector(params_vector))
 
 if __name__ == "__main__":
     test()
