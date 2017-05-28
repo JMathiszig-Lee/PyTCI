@@ -107,4 +107,5 @@ def test():
     print sample_patient['expected_result']
 
 
-test()
+if __name__ == "__main__":
+    test()
