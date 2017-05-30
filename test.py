@@ -14,7 +14,7 @@ def test_against_real_data():
     totalrms = 0
     count = 0
     z = []
-    for patient in patients[280:290]:
+    for patient in patients[1:10]:
         a = solve_for_patient(patient, params)["error"]
         a = math.sqrt(a)
         z.append(a)
@@ -72,21 +72,5 @@ def mute_against_real_data():
     return data
 
 if __name__ == '__main__':
-    fig1 = plt.figure()
     schnider= test_against_real_data()
-    def update(i):
-        fig1.clear()
-        mutant = mute_against_real_data()
-        ys = (schnider[0], mutant[0])
-        xs = (1, 2)
-        es = (schnider[1], mutant[1])
-        if schnider[0] < mutant [0]:
-            c = 'r'
-        else:
-            c = 'g'
-        stuff = (plt.errorbar(xs, ys, es, color=c))
-        return stuff
-    ani = animation.FuncAnimation(fig1, update, interval=10)
-    #plt.show()
-    #plt.errorbar(xs, ys, es)
-    plt.show()
+    print schnider
