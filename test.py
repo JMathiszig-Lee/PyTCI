@@ -16,10 +16,13 @@ def test_against_real_data():
     z = []
     for patient in patients[1:10]:
         a = solve_for_patient(patient, params)["error"]
-        a = math.sqrt(a)
+        # i think this would mean rooting twice?
+        #a = math.sqrt(a)
         z.append(a)
         totalrms = totalrms + a
         count += 1
+        d = solve_for_patient(patient, params)["cps"]
+        print d
     b =  totalrms / count
     c = statistics.stdev(z)
 

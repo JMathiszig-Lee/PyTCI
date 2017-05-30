@@ -54,7 +54,6 @@ def read_patient_csv():
 
 def parse_age(raw_age, pid):
     age = float(raw_age)
-    print pid
     if age < 0 or age > 150:
         raise ValueError("Invalid patient age '%s'for patient %s" % (raw_age, pid))
 
