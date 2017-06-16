@@ -14,7 +14,7 @@ def test_against_real_data():
     totalrms = 0
     count = 0
     z = []
-    for patient in patients[280:290]:
+    for patient in patients[1:50]:
         a = solve_for_patient(patient, params)["error"]
         a = math.sqrt(a)
         z.append(a)
@@ -58,7 +58,7 @@ def mute_against_real_data():
     totalrms = 0
     count = 0
     z = []
-    for patient in patients[280:300]:
+    for patient in patients[1:50]:
         a = solve_for_patient(patient, params)["error"]
         a = math.sqrt(a)
         z.append(a)
