@@ -32,16 +32,16 @@ class PatientState:
         self.x1 = self.x1 + drug_milligrams / self.v1
 
     def wait_time(self, time_seconds):
-        current_x1 = self.x1
-        current_x2 = self.x2
-        current_x3 = self.x3
-        current_xeo = self.xeo
 
-        self.x1 = current_x1 + (self.k21 * current_x2 - self.k12 * current_x1 + self.k31 * current_x3 - self.k13 * current_x1 - self.k10 * current_x1) * time_seconds
-        self.x2 = current_x2 + (-self.k21 * current_x2 + self.k12 * current_x1) * time_seconds
-        self.x3 = current_x3 + (-self.k31 * current_x3 + self.k13 * current_x1) * time_seconds
-        self.xeo = current_xeo + (-self.keo * current_xeo + self.keo * current_x1) * time_seconds
+        x1k10 = self.x1 * self.k10
+        x1k12 = self.x1 * self.k12
+        x1k13 = self.x1 * self.k13
+        x2k21 = self.x2 * self.k21
+        x3k31 = self.x3 * self.k31
 
+        self.x1 = self.x1 + (x2k21 - x1k12 + x3k31 - x1k13 - x1k10) * time_seconds
+        self.x2 = self.x2 + (x1k12 - x2k21) * time_seconds
+        self.x3 = self.x3 + (x1k13 - x3k31) * time_seconds
     @staticmethod
     def with_schnider_params(age, weight, height, sex):
         params = PatientState.schnider_params()
