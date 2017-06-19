@@ -6,6 +6,8 @@ import statistics
 import time
 from multiprocessing import Pool
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 def test_against_real_data(stuff):
     pmin = stuff[0]
@@ -16,11 +18,14 @@ def test_against_real_data(stuff):
     count = 0
     totalcc = 0
     z = []
-
+    percentage_rms = 0
+    meas_count = 0
+    plot_array = []
     for patient in patients[pmin:pmax]:
-        a = solve_for_patient(patient, params)["error"]
-        # i think this would mean rooting twice?
-        #a = math.sqrt(a)
+        #a = solve_for_patient(patient, params)["error"]
+        a = solve_for_patient(patient, params)["percent"]
+
+
         z.append(a)
         totalrms = totalrms + a
         count += 1
@@ -31,8 +36,26 @@ def test_against_real_data(stuff):
         meascps = []
 
         for e in d:
+
             predcps.append(e['predicted_cp'])
             meascps.append(e['measured_cp'])
+
+            #do percentage error here for no good reason at all
+            pred = e['predicted_cp']
+            meas = e['measured_cp']
+            rms_error = (pred - meas) ** 2
+            rms_error = math.sqrt(rms_error)
+            perc_error = rms_error / meas
+
+            meas_count += 1
+            percentage_rms = percentage_rms + perc_error
+
+        #somethings going wrong as _percentage_rms increases with patient number
+        # print "for patient " + str(count)
+        # print totalrms/count
+        # print percentage_rms/meas_count
+        something = totalrms/count
+        plot_array.append(something)
         cc = np.correlate(predcps, meascps)
         totalcc =+ cc[0]
 
@@ -40,28 +63,23 @@ def test_against_real_data(stuff):
     b =  totalrms / count
     c = statistics.stdev(z)
 
-    #average cross correlation
+    #average cross correlation (i dont think you can do this)
     d = totalcc / count
 
-    data = (b, c, d)
-    #date = (b, d)
+    e = percentage_rms / meas_count
 
+    data = (b, c, d, e)
+    #date = (b, d)
+    plt.plot(plot_array)
+    plt.show()
     return data
 
 if __name__ == '__main__':
     # startTime = time.time()
-    # pmin = 1
-    # pmax = 500
+    pmin = 1
+    pmax = 500
     #params = PatientState.schnider_params()
     params_vector = [0.443, 0.0107, -0.0159, 0.0062, 0.302, -0.0056, 0.196, 1.29, -0.024, 18.9, -0.391, 0.0035, 4.27, 238, 53, 77, 59, 177]
-    # stuff = (pmin, pmax, params)
-    # schnider= test_against_real_data(stuff)
-    #
-    # endtime = time.time()
-    # worktime = endtime - startTime
-    #
-    # print schnider
-    # print worktime
     params = {
         'k10a': params_vector[0],
         'k10b': params_vector[1],
@@ -83,10 +101,32 @@ if __name__ == '__main__':
         'height_offset': params_vector[17]
     }
 
+    stuff = (pmin, pmax, params)
+    schnider= test_against_real_data(stuff)
+    #
+    # endtime = time.time()
+    # worktime = endtime - startTime
+    #
+    print schnider
+    # print worktime
+
     startTime = time.time()
 
     pool = Pool(processes=5)
     results = pool.map(test_against_real_data, [(1, 100, params),(101, 200, params),(201, 300, params),(301, 400, params),(401, 500, params)])
+
+    rms = sum([thing[0] for thing in results]) * 0.2
+    print rms
+
+    p_rms = sum([thing[3] for thing in results]) * 0.2
+    print p_rms
+
+    #SD and crosscorrelation dont work like this so leave this out for now. minimise against RMS
+    # sd = sum([thing[1] for thing in results]) * 0.2
+    # crosscor = sum([thing[2] for thing in results]) * 0.2
+    # print sd
+    # print crosscor
+
 
     endtime = time.time()
     worktime = endtime - startTime

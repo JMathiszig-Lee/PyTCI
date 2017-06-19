@@ -1,4 +1,5 @@
 from patient_state import PatientState
+import math
 
 def solve_for_patient(patient, params):
     #print "Patient %s" % patient["id"]
@@ -11,6 +12,7 @@ def solve_for_patient(patient, params):
 
     total_lsq_error = 0
     total_measurements = 0
+    total_percent_error = 0
 
     previous_time_mins = 0
     current_dose_mg_per_sec = 0
@@ -33,10 +35,14 @@ def solve_for_patient(patient, params):
                 "predicted_cp": predicted_cp,
                 "measured_cp": event['cp']
             })
-
-            total_lsq_error += error ** 2
+            error = error ** 2
+            error = math.sqrt(error)
+            total_lsq_error += error
             total_measurements += 1
             #print "Predicted: %f, Actual: %f" % (predicted_cp, event['cp'])
+
+            percent_error = error / predicted_cp
+            total_percent_error += percent_error
         elif event["type"] == "start_infusion":
             amount_mg = event["propofol_mg"]
             current_dose_mg_per_sec = event["rate_mg_per_min"] / 60
@@ -47,5 +53,5 @@ def solve_for_patient(patient, params):
         previous_time_mins = event['time_mins']
 
     results["error"] = total_lsq_error / total_measurements
-
+    results["percent"] = total_percent_error / total_measurements
     return results
