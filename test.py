@@ -3,77 +3,155 @@ from patient_solver import solve_for_patient
 from patient_state import PatientState
 import math
 import statistics
+import time
+from multiprocessing import Pool
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
-def test_against_real_data():
+
+def test_against_real_data(stuff):
+    pmin = stuff[0]
+    pmax = stuff[1]
+    params = stuff[2]
     patients = read_patient_csv();
-
-    params = PatientState.schnider_params()
     totalrms = 0
     count = 0
+    totalcc = 0
     z = []
-    for patient in patients[1:50]:
-        a = solve_for_patient(patient, params)["error"]
-        # i think this would mean rooting twice?
-        #a = math.sqrt(a)
+    percentage_rms = 0
+    meas_count = 0
+    plot_array = []
+    for patient in patients[pmin:pmax]:
+        #a = solve_for_patient(patient, params)["error"]
+        a = solve_for_patient(patient, params)["percent"]
+        if a < 0:
+            print a
+            print count
         z.append(a)
         totalrms = totalrms + a
         count += 1
+
+        #set up for cross correlation
         d = solve_for_patient(patient, params)["cps"]
-        print d
+        predcps = []
+        meascps = []
+
+        for e in d:
+
+            predcps.append(e['predicted_cp'])
+            meascps.append(e['measured_cp'])
+
+        #somethings going wrong as _percentage_rms increases with patient number
+        # print "for patient " + str(count)
+        # print totalrms/count
+        # print percentage_rms/meas_count
+        something = totalrms/count
+        plot_array.append(something)
+        cc = np.correlate(predcps, meascps)
+        totalcc =+ cc[0]
+
+    #average RMS and stddeviation
     b =  totalrms / count
     c = statistics.stdev(z)
 
-    data = (b, c)
+    #average cross correlation (i dont think you can do this)
+    d = totalcc / count
 
+
+    data = (b, c, d )
+    #date = (b, d)
+    # plt.plot(plot_array)
+    # plt.show()
     return data
 
-def mute_against_real_data():
-    patients = read_patient_csv();
-    v1      = 4.27 * np.random.normal(1, 0.2)
-    k10a    = 0.443 * np.random.normal(1, 0.1)
-    k10b    = 0.0107 * np.random.normal(1, 0.1)
-    k10c    = -0.0159 * np.random.normal(1, 0.1)
-    k13     = 0.196 * np.random.normal(1, 0.1)
-
+def multi_core_test(min, max, params_vector):
     params = {
-        'k10a': k10a,
-        'k10b': k10b,
-        'k10c': k10c,
-        'k10d': 0.0062,
-        'k12a': 0.302,
-        'k12b': -0.0056,
-        'k13': k13,
-        'k21a': 1.29,
-        'k21b': -0.024,
-        'k21c': 18.9,
-        'k21d': -0.391,
-        'k31': 0.0035,
-        'v1': v1,
-        'v3': 238,
-        'age_offset': 53,
-        'weight_offset': 77,
-        'lbm_offset': 59,
-        'height_offset': 177
+        'k10a': params_vector[0],
+        'k10b': params_vector[1],
+        'k10c': params_vector[2],
+        'k10d': params_vector[3],
+        'k12a': params_vector[4],
+        'k12b': params_vector[5],
+        'k13':  params_vector[6],
+        'k21a': params_vector[7],
+        'k21b': params_vector[8],
+        'k21c': params_vector[9],
+        'k21d': params_vector[10],
+        'k31':  params_vector[11],
+        'v1':   params_vector[12],
+        'v3':   params_vector[13],
+        'age_offset': params_vector[14],
+        'weight_offset': params_vector[15],
+        'lbm_offset': params_vector[16],
+        'height_offset': params_vector[17]
     }
-    totalrms = 0
-    count = 0
-    z = []
-    for patient in patients[1:50]:
-        a = solve_for_patient(patient, params)["error"]
-        a = math.sqrt(a)
-        z.append(a)
-        totalrms = totalrms + a
-        count += 1
-    b =  totalrms / count
-    c = statistics.stdev(z)
+    pool = Pool(processes=5)
+    step_size = max / 5
+    step_size = int(step_size)
 
-    data = (b, c)
+    a = step_size
+    b = step_size + 1
+    c = step_size * 2
+    d = step_size * 2 + 1
+    e = step_size * 3
+    f = step_size * 3 + 1
+    g = step_size * 4
+    h = step_size * 4 + 1
 
-    return data
+    startTime = time.time()
+
+    results = pool.map(test_against_real_data, [(1, step_size, params),(b, c, params),(d, e, params),(f, g, params),(h, max, params)])
+    rms = sum([thing[0] for thing in results]) * 0.2
+    print results
+    endtime = time.time()
+    worktime = endtime - startTime
+
+    #return (rms, worktime)
+    return rms
 
 if __name__ == '__main__':
-    schnider= test_against_real_data()
+    startTime = time.time()
+    pmin = 1
+    pmax = 50
+    #params = PatientState.schnider_params()
+    #params_vector = [0.443, 0.0107, -0.0159, 0.0062, 0.302, -0.0056, 0.196, 1.29, -0.024, 18.9, -0.391, 0.0035, 4.27, 238, 53, 77, 59, 177]
+    params_vector = [0.4228, 0.0106, -0.014, 0.0053, 0.2931, -0.0043, 0.1929, 1.9507, -0.0317, 16.5507, -0.3743, 0.0038, 5.4105, 261.4123, 24.2962, 81.583, 60.9316, 181.265]
+    params = {
+        'k10a': params_vector[0],
+        'k10b': params_vector[1],
+        'k10c': params_vector[2],
+        'k10d': params_vector[3],
+        'k12a': params_vector[4],
+        'k12b': params_vector[5],
+        'k13':  params_vector[6],
+        'k21a': params_vector[7],
+        'k21b': params_vector[8],
+        'k21c': params_vector[9],
+        'k21d': params_vector[10],
+        'k31':  params_vector[11],
+        'v1':   params_vector[12],
+        'v3':   params_vector[13],
+        'age_offset': params_vector[14],
+        'weight_offset': params_vector[15],
+        'lbm_offset': params_vector[16],
+        'height_offset': params_vector[17]
+    }
+
+    stuff = (pmin, pmax, params)
+    schnider= test_against_real_data(stuff)
+
+    endtime = time.time()
+    worktime = endtime - startTime
+
     print schnider
+    print worktime
+
+    startTime = time.time()
+
+    result = multi_core_test(pmin, pmax, params_vector)
+    print result
+
+    endtime = time.time()
+    worktime = endtime - startTime
+
+    print worktime

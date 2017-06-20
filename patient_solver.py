@@ -41,8 +41,11 @@ def solve_for_patient(patient, params):
             total_measurements += 1
             #print "Predicted: %f, Actual: %f" % (predicted_cp, event['cp'])
 
-            percent_error = error / predicted_cp
+            percent_error = error / event['cp']
+            if percent_error < 0:
+                print percent_error
             total_percent_error += percent_error
+
         elif event["type"] == "start_infusion":
             amount_mg = event["propofol_mg"]
             current_dose_mg_per_sec = event["rate_mg_per_min"] / 60
