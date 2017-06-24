@@ -62,6 +62,7 @@ def test_against_real_data(stuff):
     #date = (b, d)
     # plt.plot(plot_array)
     # plt.show()
+<<<<<<< HEAD
     return data
 
 def test_with_schnider(stuff):
@@ -117,6 +118,8 @@ def test_with_schnider(stuff):
     #date = (b, d)
     plt.plot(plot_array)
     plt.show()
+=======
+>>>>>>> da06e981dfacbebed606680842a134a1fb9a27e2
     return data
 
 def multi_core_test(min, max, params_vector):
