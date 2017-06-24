@@ -133,25 +133,29 @@ def mutate_population(children, fittest, second, mutants):
     return pop_list
 
 if __name__ == '__main__':
-    min = 40
-    max = 70
+    min = 1
+    max = 149
 
     fittest_set = []
     second_set = []
 
-    print "%-15s %-15s %-15s %-45s" % ('Generation', 'Best', 'Second', 'Set')
+    best_fitness = 1.1
+    second_fitness = 1.1
 
-    new_pop = create_new_population(10)
-    fit_results = test_population(new_pop, 10, 10, fittest_set, second_set)
-    fittest_set = fit_results[0]
-    best_fitness = fit_results[1]
-    second_set = fit_results[2]
-    second_fitness = fit_results[3]
+    while second_fitness > 1:
+        new_pop = create_new_population(30)
+        fit_results = test_population(new_pop, 10, 10, fittest_set, second_set)
+        fittest_set = fit_results[0]
+        best_fitness = fit_results[1]
+        second_set = fit_results[2]
+        second_fitness = fit_results[3]
+        print "%-15s %-15s" % (best_fitness, second_fitness)
+
     gen = 0
-
+    print "%-15s %-15s %-15s %-45s" % ('Generation', 'Best', 'Second', 'Set')
     print "%-15s %-15s %-15s %-45s" % (gen, best_fitness, second_fitness, fittest_set)
 
-    for i in range(10):
+    for i in range(50):
 
         def pick_random_set():
             not_fittest = 1

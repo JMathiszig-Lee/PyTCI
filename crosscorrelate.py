@@ -32,23 +32,23 @@ def test_against_real_data(stuff):
         count += 1
 
         #set up for cross correlation
-        d = solve_for_patient(patient, params)["cps"]
+        #d = solve_for_patient(patient, params)["cps"]
         predcps = []
         meascps = []
 
-        for e in d:
-
-            predcps.append(e['predicted_cp'])
-            meascps.append(e['measured_cp'])
+        # for e in d:
+        #
+        #     predcps.append(e['predicted_cp'])
+        #     meascps.append(e['measured_cp'])
 
         #somethings going wrong as _percentage_rms increases with patient number
         # print "for patient " + str(count)
         # print totalrms/count
         # print percentage_rms/meas_count
-        something = totalrms/count
-        plot_array.append(something)
-        cc = np.correlate(predcps, meascps)
-        totalcc =+ cc[0]
+        # something = totalrms/count
+        # plot_array.append(something)
+        # cc = np.correlate(predcps, meascps)
+        # totalcc =+ cc[0]
 
     #average RMS and stddeviation
     b =  totalrms / count
@@ -87,7 +87,7 @@ def test_with_schnider(stuff):
         count += 1
 
         #set up for cross correlation
-        d = solve_for_patient(patient, params)["cps"]
+        d = solve_for_schnider(patient, params)["cps"]
         predcps = []
         meascps = []
 
@@ -115,8 +115,7 @@ def test_with_schnider(stuff):
 
     data = (b, c, d )
     #date = (b, d)
-    plt.plot(plot_array)
-    plt.show()
+    
 
     return data
 
@@ -162,7 +161,7 @@ def multi_core_test(min, max, params_vector):
 if __name__ == '__main__':
     startTime = time.time()
     pmin = 1
-    pmax = 500
+    pmax = 149
     #params = PatientState.schnider_params()
     params_vector = [0.443, 0.0107, -0.0159, 0.0062, 0.302, -0.0056, 0.196, 1.29, -0.024, 18.9, -0.391, 0.0035, 4.27, 238, 53, 77, 59, 177]
     params = {
@@ -189,7 +188,7 @@ if __name__ == '__main__':
 
 
     stuff = (pmin, pmax, params)
-    schnider= test_against_real_data(stuff)
+    schnider= test_with_schnider(stuff)
 
     endtime = time.time()
     worktime = endtime - startTime
