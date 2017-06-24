@@ -58,7 +58,7 @@ def test_population(pop, best, second, one, two):
         try:
             fitness = multi_core_test(min, max, i)
         except:
-            fitness = 99
+            fitness = 5
 
         #print fitness
         if fitness < best_fitness:
@@ -146,11 +146,12 @@ if __name__ == '__main__':
     fittest_set = fit_results[0]
     best_fitness = fit_results[1]
     second_set = fit_results[2]
+    second_fitness = fit_results[3]
     gen = 0
 
     print "%-15s %-15s %-15s %-45s" % (gen, best_fitness, second_fitness, fittest_set)
 
-    for i in range(15):
+    for i in range(3):
 
         def pick_random_set():
             not_fittest = 1
