@@ -151,7 +151,7 @@ if __name__ == '__main__':
 
     print "%-15s %-15s %-15s %-45s" % (gen, best_fitness, second_fitness, fittest_set)
 
-    for i in range(3):
+    for i in range(10):
 
         def pick_random_set():
             not_fittest = 1

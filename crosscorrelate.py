@@ -117,7 +117,7 @@ def test_with_schnider(stuff):
     #date = (b, d)
     plt.plot(plot_array)
     plt.show()
-    
+
     return data
 
 def multi_core_test(min, max, params_vector):
@@ -153,6 +153,8 @@ def multi_core_test(min, max, params_vector):
 
     endtime = time.time()
     worktime = endtime - startTime
+
+    pool.close()
 
     #return (rms, worktime)
     return rms
