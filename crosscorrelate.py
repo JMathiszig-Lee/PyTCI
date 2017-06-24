@@ -59,8 +59,8 @@ def test_against_real_data(stuff):
 
     data = (b, c, d )
     #date = (b, d)
-    plt.plot(plot_array)
-    plt.show()
+    # plt.plot(plot_array)
+    # plt.show()
     return data
 
 def multi_core_test(min, max, params_vector):
