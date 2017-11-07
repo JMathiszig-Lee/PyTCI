@@ -60,6 +60,7 @@ def test_against_real_data(stuff):
 
     data = (b, c, d )
     #date = (b, d)
+    #plot_array.append(something)
     # plt.plot(plot_array)
     # plt.show()
     return data
@@ -79,22 +80,25 @@ def test_with_schnider(stuff):
     for patient in patients[pmin:pmax]:
         #a = solve_for_patient(patient, params)["error"]
         params = PatientState.schnider_params()
+        #print patient["id"]
         a = solve_for_schnider(patient, params)["percent"]
+
 
 
         z.append(a)
         totalrms = totalrms + a
         count += 1
+        print "Patient: %s, Error: %f" % ( patient["id"], a)
 
         #set up for cross correlation
-        d = solve_for_schnider(patient, params)["cps"]
+        #d = solve_for_schnider(patient, params)["cps"]
         predcps = []
         meascps = []
 
-        for e in d:
-
-            predcps.append(e['predicted_cp'])
-            meascps.append(e['measured_cp'])
+        # for e in d:
+        #
+        #     predcps.append(e['predicted_cp'])
+        #     meascps.append(e['measured_cp'])
 
         #somethings going wrong as _percentage_rms increases with patient number
         # print "for patient " + str(count)
@@ -102,20 +106,24 @@ def test_with_schnider(stuff):
         # print percentage_rms/meas_count
         something = totalrms/count
         plot_array.append(something)
-        cc = np.correlate(predcps, meascps)
-        totalcc =+ cc[0]
+        #cc = np.correlate(predcps, meascps)
+        #totalcc =+ cc[0]
 
     #average RMS and stddeviation
     b =  totalrms / count
-    c = statistics.stdev(z)
+    #c = statistics.stdev(z)
 
     #average cross correlation (i dont think you can do this)
     d = totalcc / count
 
 
-    data = (b, c, d )
-    #date = (b, d)
-    
+
+
+    #data = (b, c, d )
+    data = (b)
+    #plot_array.append(something)
+    plt.plot(plot_array)
+    plt.show()
 
     return data
 
@@ -155,13 +163,13 @@ def multi_core_test(min, max, params_vector):
 
     pool.close()
 
-    #return (rms, worktime)
+
     return rms
 
 if __name__ == '__main__':
     startTime = time.time()
-    pmin = 1
-    pmax = 149
+    pmin = 0
+    pmax = 500
     #params = PatientState.schnider_params()
     params_vector = [0.443, 0.0107, -0.0159, 0.0062, 0.302, -0.0056, 0.196, 1.29, -0.024, 18.9, -0.391, 0.0035, 4.27, 238, 53, 77, 59, 177]
     params = {

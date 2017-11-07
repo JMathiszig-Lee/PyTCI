@@ -2,6 +2,8 @@ from crosscorrelate import multi_core_test
 import numpy as np
 import random
 import time
+import csv
+import os
 
 def create_population(size):
     params = [0.443, 0.0107, -0.0159, 0.0062, 0.302, -0.0056, 0.196, 1.29, -0.024, 18.9, -0.391, 0.0035, 4.27, 238, 53, 77, 59, 177]
@@ -112,9 +114,9 @@ def mutate_population(children, fittest, second, mutants):
 
     rand1 = create_new_set()
     rand2 = create_new_set()
-    breed(4, fittest, rand1)
+    breed(2, fittest, rand1)
 
-    breed(4, fittest, rand2)
+    breed(2, fittest, rand2)
 
     #create mutants of fittest
     for i in range(mutants):
@@ -134,7 +136,7 @@ def mutate_population(children, fittest, second, mutants):
 
 if __name__ == '__main__':
     min = 1
-    max = 149
+    max = 49
 
     fittest_set = []
     second_set = []
@@ -142,37 +144,44 @@ if __name__ == '__main__':
     best_fitness = 1.1
     second_fitness = 1.1
 
-    while second_fitness > 1:
-        new_pop = create_new_population(30)
-        fit_results = test_population(new_pop, 10, 10, fittest_set, second_set)
-        fittest_set = fit_results[0]
-        best_fitness = fit_results[1]
-        second_set = fit_results[2]
-        second_fitness = fit_results[3]
-        print "%-15s %-15s" % (best_fitness, second_fitness)
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    folder = 'results/'
+    fileloc = os.path.join(folder, timestr)
+    with open('%s.csv' % (fileloc), 'wb') as myfile:
+        wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
 
-    gen = 0
-    print "%-15s %-15s %-15s %-45s" % ('Generation', 'Best', 'Second', 'Set')
-    print "%-15s %-15s %-15s %-45s" % (gen, best_fitness, second_fitness, fittest_set)
+        while second_fitness > 1:
+            new_pop = create_new_population(10)
+            fit_results = test_population(new_pop, 10, 10, fittest_set, second_set)
+            fittest_set = fit_results[0]
+            best_fitness = fit_results[1]
+            second_set = fit_results[2]
+            second_fitness = fit_results[3]
+            print second_fitness
 
-    for i in range(50):
-
-        def pick_random_set():
-            not_fittest = 1
-            while not_fittest == 1:
-                randset = random.randint(0,9)
-                randset = new_pop[randset]
-                if randset != fittest_set:
-                    not_fittest = 0
-            return randset
-
-        new_pop = mutate_population(4, fittest_set, second_set, 4)
-
-        gen +=1
-        fit_results = test_population(new_pop, best_fitness, second_fitness, fittest_set, second_set)
-        fittest_set = fit_results[0]
-        best_fitness = fit_results[1]
-        second_set = fit_results[2]
-        second_fitness = fit_results[3]
-
+        gen = 0
+        print "%-15s %-15s %-15s %-45s" % ('Generation', 'Best', 'Second', 'Set')
         print "%-15s %-15s %-15s %-45s" % (gen, best_fitness, second_fitness, fittest_set)
+
+        for i in range(5):
+
+            def pick_random_set():
+                not_fittest = 1
+                while not_fittest == 1:
+                    randset = random.randint(0,9)
+                    randset = new_pop[randset]
+                    if randset != fittest_set:
+                        not_fittest = 0
+                return randset
+
+            new_pop = mutate_population(4, fittest_set, second_set, 4)
+
+            gen +=1
+            fit_results = test_population(new_pop, best_fitness, second_fitness, fittest_set, second_set)
+            fittest_set = fit_results[0]
+            best_fitness = fit_results[1]
+            second_set = fit_results[2]
+            second_fitness = fit_results[3]
+
+            print "%-15s %-15s %-15s %-45s" % (gen, best_fitness, second_fitness, fittest_set)
+            wr.writerow(fit_results)

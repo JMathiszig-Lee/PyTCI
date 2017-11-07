@@ -9,7 +9,6 @@ class PatientState2:
         lean_body_mass = self.__lean_body_mass(weight, height, sex)
 
         self.v1 = (params['v1a'] - params['v1b']*(age - params['age_offset'])) * (params['v1c'] * (lean_body_mass - params['lbm_offset']))
-        # TODO: Work out why v2 and v3 are not used in the algorithm
         self.v2 = params['v2a'] * lean_body_mass
         self.v3 = params['v3a'] * weight
 
@@ -76,7 +75,6 @@ class PatientState2:
         if sex != "m" and sex != "f":
             raise ValueError("Unknown sex '%s'. This algorithm can only handle 'm' and 'f'. :(" % sex)
 
-        # TODO: Use better equation to calculate lean body mass
         if sex == "m":
             return (0.32819 * weight) + (0.33929 * height) - 29.5336
         else:
