@@ -167,7 +167,7 @@ if __name__ == '__main__':
             best_fitness = fit_results[1]
             second_set = fit_results[2]
             second_fitness = fit_results[3]
-            print second_fitness
+            print "%-15s %-45s" % (second_fitness, second_set)
 
         gen = 0
         print "%-15s %-15s %-15s %-45s" % ('Generation', 'Best', 'Second', 'Set')
