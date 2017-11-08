@@ -7,7 +7,7 @@ import statistics
 import time
 from multiprocessing import Pool
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 def test_against_real_data(stuff):
@@ -141,7 +141,7 @@ def multi_core_test(cores, max, params_vector):
         'k12': params_vector[8],
         'k13': params_vector[9],
     }
-    
+
     PROCESSES = cores
     pool = Pool(PROCESSES)
     step_size = max / cores
