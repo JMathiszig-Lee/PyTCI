@@ -52,13 +52,13 @@ def test_against_real_data(stuff):
 
     #average RMS and stddeviation
     b =  totalrms / count
-    c = statistics.stdev(z)
+    #c = statistics.stdev(z)
 
     #average cross correlation (i dont think you can do this)
     d = totalcc / count
 
 
-    data = (b, c, d )
+    data = (b, d )
     #date = (b, d)
     #plot_array.append(something)
     # plt.plot(plot_array)
@@ -156,24 +156,9 @@ def multi_core_test(cores, max, params_vector):
         thing = (a, b, params)
         jobs.append(thing)
 
-    # print jobs
-    #
-    # a = step_size
-    # b = step_size + 1
-    # c = step_size * 2
-    # d = step_size * 2 + 1
-    # e = step_size * 3
-    # f = step_size * 3 + 1
-    # g = step_size * 4
-    # h = step_size * 4 + 1
-
-    # startTime = time.time()
-
     results = pool.map(test_against_real_data, jobs)
     rms = sum([thing[0] for thing in results]) * 0.2
 
-    # endtime = time.time()
-    # worktime = endtime - startTime
 
     pool.close()
     pool.terminate()

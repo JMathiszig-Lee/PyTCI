@@ -144,6 +144,9 @@ if __name__ == '__main__':
     cores   = int(os.getenv('CORES', 2))
     gens    = int(os.getenv('GENERATIONS', 3))
 
+    print "%-15s %-15s %-15s %-45s" % ('Number', 'pop size', 'Cores', 'Generations')
+    print "%-15s %-15s %-15s %-45s" % (max, pop, cores, gens)
+
 
     fittest_set = []
     second_set = []
