@@ -139,10 +139,10 @@ def mutate_population(children, fittest, second, mutants):
 
 if __name__ == '__main__':
     min     = 1
-    max     = os.getenv('MAX', 60)
-    pop     = os.getenv('POP', 10)
-    cores   = os.getenv('CORES', 2)
-    gens    = os.getenv('GENERATIONS', 3)
+    max     = int(os.getenv('MAX', 60))
+    pop     = int(os.getenv('POP', 10))
+    cores   = int(os.getenv('CORES', 2))
+    gens    = int(os.getenv('GENERATIONS', 3))
 
 
     fittest_set = []
