@@ -5,6 +5,7 @@ import time
 import csv
 import os
 
+
 def create_population(size):
     params = [0.443, 0.0107, -0.0159, 0.0062, 0.302, -0.0056, 0.196, 1.29, -0.024, 18.9, -0.391, 0.0035, 4.27, 238, 53, 77, 59, 177]
     pop_size = size
@@ -60,7 +61,7 @@ def test_population(pop, best, second, one, two):
 
     for i in pop:
         try:
-            fitness = multi_core_test(3, max, i)
+            fitness = multi_core_test(cores, max, i)
         except:
             fitness = 5
 
@@ -137,8 +138,12 @@ def mutate_population(children, fittest, second, mutants):
     return pop_list
 
 if __name__ == '__main__':
-    min = 1
-    max = 49
+    min     = 1
+    max     = os.getenv('MAX', 60)
+    pop     = os.getenv('POP', 10)
+    cores   = os.getenv('CORES', 2)
+    gens    = os.getenv('GENERATIONS', 3)
+
 
     fittest_set = []
     second_set = []
@@ -153,7 +158,7 @@ if __name__ == '__main__':
         wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
 
         while second_fitness > 1:
-            new_pop = create_new_population(10)
+            new_pop = create_new_population(pop)
             fit_results = test_population(new_pop, 10, 10, fittest_set, second_set)
             fittest_set = fit_results[0]
             best_fitness = fit_results[1]
@@ -165,7 +170,7 @@ if __name__ == '__main__':
         print "%-15s %-15s %-15s %-45s" % ('Generation', 'Best', 'Second', 'Set')
         print "%-15s %-15s %-15s %-45s" % (gen, best_fitness, second_fitness, fittest_set)
 
-        for i in range(5):
+        for i in range(gens):
 
             def pick_random_set():
                 not_fittest = 1
