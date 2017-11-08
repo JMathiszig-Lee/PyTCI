@@ -127,7 +127,8 @@ def test_with_schnider(stuff):
 
     return data
 
-def multi_core_test(min, max, params_vector):
+def multi_core_test(cores, max, params_vector):
+    #TODO change this so params can be any size
     params = {
         'v1a': params_vector[0],
         'v1b': params_vector[1],
@@ -140,28 +141,43 @@ def multi_core_test(min, max, params_vector):
         'k12': params_vector[8],
         'k13': params_vector[9],
     }
-    pool = Pool(processes=5)
-    step_size = max / 5
+    
+    PROCESSES = cores
+    pool = Pool(PROCESSES)
+    step_size = max / cores
     step_size = int(step_size)
 
-    a = step_size
-    b = step_size + 1
-    c = step_size * 2
-    d = step_size * 2 + 1
-    e = step_size * 3
-    f = step_size * 3 + 1
-    g = step_size * 4
-    h = step_size * 4 + 1
+    jobs = []
+    for idx in range(cores):
+        a = step_size * idx + 1
+        b = step_size * (idx + 1)
+        if idx == (cores-1):
+            b = max
+        thing = (a, b, params)
+        jobs.append(thing)
 
-    startTime = time.time()
+    # print jobs
+    #
+    # a = step_size
+    # b = step_size + 1
+    # c = step_size * 2
+    # d = step_size * 2 + 1
+    # e = step_size * 3
+    # f = step_size * 3 + 1
+    # g = step_size * 4
+    # h = step_size * 4 + 1
 
-    results = pool.map(test_against_real_data, [(1, step_size, params),(b, c, params),(d, e, params),(f, g, params),(h, max, params)])
+    # startTime = time.time()
+
+    results = pool.map(test_against_real_data, jobs)
     rms = sum([thing[0] for thing in results]) * 0.2
 
-    endtime = time.time()
-    worktime = endtime - startTime
+    # endtime = time.time()
+    # worktime = endtime - startTime
 
     pool.close()
+    pool.terminate()
+    pool.join()
 
 
     return rms

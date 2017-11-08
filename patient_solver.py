@@ -1,5 +1,5 @@
-from patient_state import PatientState
-from patient_state2 import PatientState2
+from patient_state import PatientState, PatientState2
+#from patient_state2 import PatientState2
 import math
 
 def solve_for_patient(patient, params):

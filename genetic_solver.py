@@ -21,6 +21,8 @@ def create_population(size):
     return pop_list
 
 def create_new_set():
+    #TODO make this all 0,1 so we can easily switch between models for a variable size population
+    # this means setting the magnitude within the patientstateX class
     new_set = []
     new_set.append(random.uniform(0,50))    #v1a
     new_set.append(random.uniform(0,1))     #v1b
@@ -58,7 +60,7 @@ def test_population(pop, best, second, one, two):
 
     for i in pop:
         try:
-            fitness = multi_core_test(min, max, i)
+            fitness = multi_core_test(3, max, i)
         except:
             fitness = 5
 
