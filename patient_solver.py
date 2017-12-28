@@ -1,6 +1,7 @@
 from patient_state import PatientState, PatientState2
 #from patient_state2 import PatientState2
 import math
+import statistics
 
 def solve_for_patient(patient, params):
     #print "Patient %s" % patient["id"]
@@ -19,6 +20,9 @@ def solve_for_patient(patient, params):
     current_dose_mg_per_sec = 0
     infusion_seconds_remaining = 0
 
+    absolutelist = []
+    biaslist    = []
+
     for event in patient['events']:
         for t in range(int((event['time_mins'] - previous_time_mins) * 60)):
             if infusion_seconds_remaining > 0:
@@ -31,20 +35,31 @@ def solve_for_patient(patient, params):
             predicted_cp = patient_model.x1
             error = event['cp'] - predicted_cp
 
+            percent_error = error / event['cp']
+            biaslist.append(error)
+
             results["cps"].append({
                 "time_seconds": int(previous_time_mins * 60) + t,
                 "predicted_cp": predicted_cp,
                 "measured_cp": event['cp']
             })
+
+            #print "Predicted: %f, Actual: %f" % (predicted_cp, event['cp'])
+
             error = error ** 2
             error = math.sqrt(error)
+
+
             total_lsq_error += error
             total_measurements += 1
-            #print "Predicted: %f, Actual: %f" % (predicted_cp, event['cp'])
 
             percent_error = error / event['cp']
             if percent_error < 0:
                 print percent_error
+
+            absolutelist.append(percent_error)
+
+
             total_percent_error += percent_error
 
         elif event["type"] == "start_infusion":
@@ -56,8 +71,10 @@ def solve_for_patient(patient, params):
 
         previous_time_mins = event['time_mins']
 
-    results["error"] = total_lsq_error / total_measurements
-    results["percent"] = total_percent_error / total_measurements
+    results["error"]    = total_lsq_error / total_measurements
+    results["percent"]  = total_percent_error / total_measurements
+    results["median"]   = statistics.median(absolutelist)
+    results["bias"]     = statistics.median(biaslist)
     return results
 
 def solve_for_schnider(patient, params):

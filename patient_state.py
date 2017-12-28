@@ -145,9 +145,9 @@ if __name__ == '__main__':
     patient = PatientState.with_schnider_params(50, 70, 180, "m")
     print "Initial state: " + str(patient)
 
-    patient.give_drug(92.60001)
+    patient.give_drug(95)
     print "After giving drug: " + str(patient)
 
-    for t in range(130):
+    for t in range(180):
         patient.wait_time(1)
-        print "After 1 sec: " + str(patient)
+        print str(t) + str(patient)

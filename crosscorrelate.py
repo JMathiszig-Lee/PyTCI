@@ -15,54 +15,31 @@ def test_against_real_data(stuff):
     pmax = stuff[1]
     params = stuff[2]
     patients = read_patient_csv();
+
     totalrms = 0
+    totalmed = 0
+    totalbias = 0
     count = 0
-    totalcc = 0
-    z = []
-    percentage_rms = 0
-    meas_count = 0
-    plot_array = []
+
     for patient in patients[pmin:pmax]:
-        #a = solve_for_patient(patient, params)["error"]
-        a = solve_for_patient(patient, params)["percent"]
+        res = solve_for_patient(patient, params)
+        a = res["percent"]
+        med = res["median"]
+        bias = res["bias"]
 
+        #print "%-10s %-10s" % (a, med)
 
-        z.append(a)
-        totalrms = totalrms + a
+        totalrms    += a
+        totalbias   += bias
+        totalmed    += med
         count += 1
 
-        #set up for cross correlation
-        #d = solve_for_patient(patient, params)["cps"]
-        predcps = []
-        meascps = []
-
-        # for e in d:
-        #
-        #     predcps.append(e['predicted_cp'])
-        #     meascps.append(e['measured_cp'])
-
-        #somethings going wrong as _percentage_rms increases with patient number
-        # print "for patient " + str(count)
-        # print totalrms/count
-        # print percentage_rms/meas_count
-        # something = totalrms/count
-        # plot_array.append(something)
-        # cc = np.correlate(predcps, meascps)
-        # totalcc =+ cc[0]
-
-    #average RMS and stddeviation
-    b =  totalrms / count
-    #c = statistics.stdev(z)
-
-    #average cross correlation (i dont think you can do this)
-    d = totalcc / count
+    b = totalrms / count
+    c = totalmed / count
+    d = totalbias / count
 
 
-    data = (b, d )
-    #date = (b, d)
-    #plot_array.append(something)
-    # plt.plot(plot_array)
-    # plt.show()
+    data = (b, c, d)
     return data
 
 def test_with_schnider(stuff):
@@ -81,7 +58,11 @@ def test_with_schnider(stuff):
         #a = solve_for_patient(patient, params)["error"]
         params = PatientState.schnider_params()
         #print patient["id"]
+        b = solve_for_schnider(patient, params)
         a = solve_for_schnider(patient, params)["percent"]
+
+        print b["percent"]
+        print a
 
 
 
@@ -142,8 +123,6 @@ def multi_core_test(cores, max, params_vector):
         'k13': params_vector[9],
     }
 
-    PROCESSES = cores
-    pool = Pool(PROCESSES)
     step_size = max / cores
     step_size = int(step_size)
 
@@ -157,70 +136,33 @@ def multi_core_test(cores, max, params_vector):
         jobs.append(thing)
 
     results = pool.map(test_against_real_data, jobs)
-    rms = sum([thing[0] for thing in results]) * 0.2
+
+    #make this dynamic, cast to float?
+    rms = sum([thing[0] for thing in results]) / cores
+    meds = sum([thing[1] for thing in results]) / cores
+
+    # "%-15s %-15s" % (rms, meds)
 
 
-    pool.close()
-    pool.terminate()
-    pool.join()
-
-
-    return rms
+    return meds
 
 if __name__ == '__main__':
     startTime = time.time()
     pmin = 0
-    pmax = 500
-    #params = PatientState.schnider_params()
-    params_vector = [0.443, 0.0107, -0.0159, 0.0062, 0.302, -0.0056, 0.196, 1.29, -0.024, 18.9, -0.391, 0.0035, 4.27, 238, 53, 77, 59, 177]
-    params = {
-        'k10a': params_vector[0],
-        'k10b': params_vector[1],
-        'k10c': params_vector[2],
-        'k10d': params_vector[3],
-        'k12a': params_vector[4],
-        'k12b': params_vector[5],
-        'k13':  params_vector[6],
-        'k21a': params_vector[7],
-        'k21b': params_vector[8],
-        'k21c': params_vector[9],
-        'k21d': params_vector[10],
-        'k31':  params_vector[11],
-        'v1':   params_vector[12],
-        'v3':   params_vector[13],
-        'age_offset': params_vector[14],
-        'weight_offset': params_vector[15],
-        'lbm_offset': params_vector[16],
-        'height_offset': params_vector[17]
-    }
+    pmax = 2
+    params = PatientState.schnider_params()
 
 
 
     stuff = (pmin, pmax, params)
     schnider= test_with_schnider(stuff)
 
+    param = create_new_set()
+
+    print multi_core_test(4, pmax, param)
+
     endtime = time.time()
     worktime = endtime - startTime
 
     print schnider
     print worktime
-
-    # startTime = time.time()
-    #
-    # pool = Pool(processes=5)
-    # results = pool.map(test_against_real_data, [(1, 100, params),(101, 200, params),(201, 300, params),(301, 400, params),(401, 500, params)])
-    #
-    # rms = sum([thing[0] for thing in results]) * 0.2
-    # print rms
-    #
-    # #SD and crosscorrelation dont work like this so leave this out for now. minimise against RMS
-    # # sd = sum([thing[1] for thing in results]) * 0.2
-    # # crosscor = sum([thing[2] for thing in results]) * 0.2
-    # # print sd
-    # # print crosscor
-    #
-    #
-    # endtime = time.time()
-    # worktime = endtime - startTime
-    # print results
-    # print worktime
