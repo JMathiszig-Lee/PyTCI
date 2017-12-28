@@ -47,65 +47,31 @@ def test_with_schnider(stuff):
     pmax = stuff[1]
     params = stuff[2]
     patients = read_patient_csv();
+
     totalrms = 0
+    totalmed = 0
+    totalbias = 0
     count = 0
-    totalcc = 0
-    z = []
-    percentage_rms = 0
-    meas_count = 0
-    plot_array = []
+
     for patient in patients[pmin:pmax]:
-        #a = solve_for_patient(patient, params)["error"]
-        params = PatientState.schnider_params()
-        #print patient["id"]
-        b = solve_for_schnider(patient, params)
-        a = solve_for_schnider(patient, params)["percent"]
+        res = solve_for_schnider(patient, params)
+        a = res["percent"]
+        med = res["median"]
+        bias = res["bias"]
 
-        print b["percent"]
-        print a
+        #print "%-10s %-10s" % (a, med)
 
-
-
-        z.append(a)
-        totalrms = totalrms + a
+        totalrms    += a
+        totalbias   += bias
+        totalmed    += med
         count += 1
-        print "Patient: %s, Error: %f" % ( patient["id"], a)
 
-        #set up for cross correlation
-        #d = solve_for_schnider(patient, params)["cps"]
-        predcps = []
-        meascps = []
-
-        # for e in d:
-        #
-        #     predcps.append(e['predicted_cp'])
-        #     meascps.append(e['measured_cp'])
-
-        #somethings going wrong as _percentage_rms increases with patient number
-        # print "for patient " + str(count)
-        # print totalrms/count
-        # print percentage_rms/meas_count
-        something = totalrms/count
-        plot_array.append(something)
-        #cc = np.correlate(predcps, meascps)
-        #totalcc =+ cc[0]
-
-    #average RMS and stddeviation
-    b =  totalrms / count
-    #c = statistics.stdev(z)
-
-    #average cross correlation (i dont think you can do this)
-    d = totalcc / count
+    b = totalrms / count
+    c = totalmed / count
+    d = totalbias / count
 
 
-
-
-    #data = (b, c, d )
-    data = (b)
-    #plot_array.append(something)
-    plt.plot(plot_array)
-    plt.show()
-
+    data = (b, c, d)
     return data
 
 def multi_core_test(cores, max, params_vector):
@@ -149,7 +115,7 @@ def multi_core_test(cores, max, params_vector):
 if __name__ == '__main__':
     startTime = time.time()
     pmin = 0
-    pmax = 2
+    pmax = 100
     params = PatientState.schnider_params()
 
 
@@ -157,9 +123,6 @@ if __name__ == '__main__':
     stuff = (pmin, pmax, params)
     schnider= test_with_schnider(stuff)
 
-    param = create_new_set()
-
-    print multi_core_test(4, pmax, param)
 
     endtime = time.time()
     worktime = endtime - startTime

@@ -54,25 +54,20 @@ def create_new_population(size):
     return pop_list
 
 def test_population(pop, best, second, one, two):
-    print " "
-    print "********"
-    print "%-40s %-40s" % ('best', 'second')
-    print "%-40s %-40s" % (best, second)
-    print "********"
-    print " "
+    # print " "
+    # print "********"
+    # print "%-40s %-40s" % ('best', 'second')
+    # print "%-40s %-40s" % (best, second)
+    # print "********"
+    # print " "
     best_fitness = best[1]
     second_fitness = second[1]
 
     fittest_set = one
     second_set = two
-
-    print fittest_set
-    print second_set
-
     #print "best: " + str(best_fitness)
 
     #switching between the tuple and value is confusing and i'm getting upset
-
 
     for i in pop:
         try:
@@ -81,7 +76,6 @@ def test_population(pop, best, second, one, two):
             fitness = result[1]
 
             if fitness < best_fitness:
-                print str(fitness) + str(best_fitness)
                 #move current best to second best
                 second = best
                 second_set = fittest_set
@@ -95,16 +89,14 @@ def test_population(pop, best, second, one, two):
 
 
             #these should be tuples
-            print "%-40s %-40s" % ('best', 'second')
-            print "%-40s %-40s" % (best, second)
+            #print "%-40s %-40s" % ('best', 'second')
+            #print "%-40s %-40s" % (best, second)
         except:
             result = (99, 99, 99)
-            print "except"
-            print " "
+            # print "except"
+            # print " "
 
     output = (fittest_set, best, second_set, second)
-    print "output"
-    print output
 
     return output
 
@@ -208,10 +200,10 @@ def multi_core_test(cores, max, params_vector):
 
 if __name__ == '__main__':
     min     = 1
-    max     = int(os.getenv('MAX', 10))
-    pop     = int(os.getenv('POP', 5))
-    cores   = int(os.getenv('CORES', 1))
-    gens    = int(os.getenv('GENERATIONS', 3))
+    max     = int(os.getenv('MAX', 100))
+    pop     = int(os.getenv('POP', 10))
+    cores   = int(os.getenv('CORES', 4))
+    gens    = int(os.getenv('GENERATIONS', 10))
 
     PROCESSES = cores
     pool = Pool(PROCESSES)
@@ -246,9 +238,9 @@ if __name__ == '__main__':
         while sec_fit > 9.9:
             new_pop = create_new_population(pop)
             fit_results = test_population(new_pop, best_fitness, second_fitness, fittest_set, second_set)
-            print " "
-            print "results: " +  str(fit_results)
-            print " "
+            # print " "
+            # print "results: " +  str(fit_results)
+            # print " "
             fittest_set = fit_results[0]
             best_fitness = fit_results[1]
             #best_fitness = best_fitness[1]
@@ -263,7 +255,7 @@ if __name__ == '__main__':
 
         gen = 0
         print "%-5s %-15s %-15s %-45s" % ('Gen', 'Best', 'Second', 'Set')
-        print "%-5s %-15s %-15s %-45s" % (gen, best_fitness, second_fitness, fittest_set)
+        print "%-5s %-15s %-15s %-45s" % (gen, best_fitness[1], second_fitness[1], fittest_set)
 
         for i in range(gens):
 
@@ -285,5 +277,5 @@ if __name__ == '__main__':
             second_set = fit_results[2]
             second_fitness = fit_results[3]
 
-            print "%-15s %-15s %-15s %-45s" % (gen, best_fitness, second_fitness, fittest_set)
+            print "%-5s %-15s %-15s %-45s" % (gen, best_fitness[1], second_fitness[1], fittest_set)
             wr.writerow(fit_results)
