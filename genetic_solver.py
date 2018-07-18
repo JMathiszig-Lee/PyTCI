@@ -138,8 +138,11 @@ def mutate_population(children, fittest, second, mutants):
 
     rand1 = create_new_set()
     rand2 = create_new_set()
-    breed(2, fittest, rand1)
 
+    pop_list.append(rand1)
+    pop_list.append(rand2)
+
+    breed(2, fittest, rand1)
     breed(2, fittest, rand2)
 
     #create mutants of fittest
@@ -203,7 +206,7 @@ if __name__ == '__main__':
     max     = int(os.getenv('MAX', 100))
     pop     = int(os.getenv('POP', 10))
     cores   = int(os.getenv('CORES', 4))
-    gens    = int(os.getenv('GENERATIONS', 10))
+    gens    = int(os.getenv('GENERATIONS', 100))
 
     PROCESSES = cores
     pool = Pool(PROCESSES)
@@ -250,7 +253,6 @@ if __name__ == '__main__':
             sec_fit = second_fitness[1]
 
             #print "%-5s %-45s %-5s %-45s" % (best_fitness, fittest_set, second_fitness, second_set)
-            time.sleep(2)
             print "trying again"
 
         gen = 0

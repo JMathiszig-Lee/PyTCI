@@ -21,11 +21,15 @@ class PatientState:
         self.k10 = (params['k10a'] + params['k10b'] * (weight - params['weight_offset']) + params['k10c'] * (lean_body_mass - params['lbm_offset']) + params['k10d'] * (height - params['height_offset'])) / 60
         self.k12 = (params['k12a'] + params['k12b'] * (age - params['age_offset'])) / 60
         self.k13 = params['k13'] / 60
-        self.k21 = ((params['k21a'] + params['k21b'] * (age - params['age_offset'])) / (params['k21c'] + params['k21d'] * (age - params['age_offset']))) / 60
+        self.k21 = ((params['k21a'] + params['k21b'] * (age - params['age_offset'])) / v2) / 60
         self.k31 = params['k31'] / 60
 
+        self.keo = 0.456
+        #wrong keo but for demo purposes
+        self.veo = self.keo/(self.v1 * 10000)
         self.keo = 0.456 / 60
 
+        self.k1e = self.keo/self.veo
         self.xeo = 0.0
 
     def give_drug(self, drug_milligrams):
@@ -39,9 +43,15 @@ class PatientState:
         x2k21 = self.x2 * self.k21
         x3k31 = self.x3 * self.k31
 
+        xk1e = self.x1 * self.k1e
+        xke1 = self.xeo * self.keo
+
         self.x1 = self.x1 + (x2k21 - x1k12 + x3k31 - x1k13 - x1k10) * time_seconds
         self.x2 = self.x2 + (x1k12 - x2k21) * time_seconds
         self.x3 = self.x3 + (x1k13 - x3k31) * time_seconds
+
+        self.xeo = self.xeo + (xk1e - xke1) * time_seconds
+
     @staticmethod
     def with_schnider_params(age, weight, height, sex):
         params = PatientState.schnider_params()
@@ -142,12 +152,15 @@ class PatientState2:
         return "PatientState(x1=%f, x2=%f, x3=%f, xeo=%f)" % (self.x1, self.x2, self.x3, self.xeo)
 
 if __name__ == '__main__':
-    patient = PatientState.with_schnider_params(50, 70, 180, "m")
+    patient = PatientState.with_schnider_params(34, 46.3, 157.5, "f")
     print "Initial state: " + str(patient)
 
-    patient.give_drug(95)
+    patient.give_drug(200)
     print "After giving drug: " + str(patient)
 
-    for t in range(180):
+    times = [126, 240, 483, 962, 1803, 3583]
+
+    for t in range(3584):
         patient.wait_time(1)
-        print str(t) + str(patient)
+        if t in times:
+            print str(t) + str(patient)
