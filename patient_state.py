@@ -25,7 +25,7 @@ class PatientState:
         self.k31 = params['k31'] / 60
 
         self.keo = 0.456
-        #wrong keo but for demo purposes
+        # TODO sort out the effect site maths as this is spitting out weird stuff
         self.veo = self.keo/(self.v1 * 10000)
         self.keo = 0.456 / 60
 
@@ -43,7 +43,7 @@ class PatientState:
         x2k21 = self.x2 * self.k21
         x3k31 = self.x3 * self.k31
 
-        xk1e = self.x1 * self.k1e
+        xk1e = self.x1 * self.keo
         xke1 = self.xeo * self.keo
 
         self.x1 = self.x1 + (x2k21 - x1k12 + x3k31 - x1k13 - x1k10) * time_seconds
@@ -155,12 +155,14 @@ if __name__ == '__main__':
     patient = PatientState.with_schnider_params(34, 46.3, 157.5, "f")
     print "Initial state: " + str(patient)
 
-    patient.give_drug(200)
+    patient.give_drug(90)
     print "After giving drug: " + str(patient)
 
     times = [126, 240, 483, 962, 1803, 3583]
 
-    for t in range(3584):
+    for t in range(961):
         patient.wait_time(1)
-        if t in times:
+        #print str(t) + str(patient)
+        mod = t % 30
+        if mod == 0:
             print str(t) + str(patient)

@@ -22,27 +22,29 @@ def create_population(size):
         pop_list.append(newparam)
     return pop_list
 
+
 def create_new_set():
-    #TODO make this all 0,1 so we can easily switch between models for a variable size population
+    # TODO make this all 0,1 so we can easily switch between models for a variable size population
     # this means setting the magnitude within the patientstateX class
     new_set = []
-    new_set.append(random.uniform(0,50))    #v1a
-    new_set.append(random.uniform(0,1))     #v1b
-    new_set.append(random.uniform(0,100))   #age_offset
-    new_set.append(random.uniform(0,1))     #v1c
-    new_set.append(random.uniform(0,100) )   #lbm_offset
-    new_set.append(random.uniform(0,2))   #v2a
-    new_set.append(random.uniform(0,5))    #v3a
-    new_set.append(random.uniform(0,1))    #k10a
-    new_set.append(random.uniform(0,1))    #k12
-    new_set.append(random.uniform(0,1))    #k13#
+    new_set.append(random.uniform(0, 50))    # v1a
+    new_set.append(random.uniform(0, 1))     # v1b
+    new_set.append(random.uniform(0, 100))   # age_offset
+    new_set.append(random.uniform(0, 1))     # v1c
+    new_set.append(random.uniform(0, 100))   # lbm_offset
+    new_set.append(random.uniform(0, 2))   # v2a
+    new_set.append(random.uniform(0, 5))    # v3a
+    new_set.append(random.uniform(0, 1))    # k10a
+    new_set.append(random.uniform(0, 1))    # k12
+    new_set.append(random.uniform(0, 1))    # k13
     count = 0
     for k in new_set:
         i = round(k, 4)
-        new_set[count]= i
+        new_set[count] = i
         count += 1
 
-    return new_set
+return new_set
+
 
 def create_new_population(size):
     pop_size = size
@@ -52,6 +54,7 @@ def create_new_population(size):
         newparam = create_new_set()
         pop_list.append(newparam)
     return pop_list
+
 
 def test_population(pop, best, second, one, two):
     # print " "
@@ -76,7 +79,7 @@ def test_population(pop, best, second, one, two):
             fitness = result[1]
 
             if fitness < best_fitness:
-                #move current best to second best
+                # move current best to second best
                 second = best
                 second_set = fittest_set
 
@@ -88,9 +91,9 @@ def test_population(pop, best, second, one, two):
                 second_set = i
 
 
-            #these should be tuples
-            #print "%-40s %-40s" % ('best', 'second')
-            #print "%-40s %-40s" % (best, second)
+            # these should be tuples
+            # print "%-40s %-40s" % ('best', 'second')
+            # print "%-40s %-40s" % (best, second)
         except:
             result = (99, 99, 99)
             # print "except"
@@ -99,6 +102,7 @@ def test_population(pop, best, second, one, two):
     output = (fittest_set, best, second_set, second)
 
     return output
+
 
 def mutate_population(children, fittest, second, mutants):
     pop_list = []
@@ -115,8 +119,7 @@ def mutate_population(children, fittest, second, mutants):
             chrome = chrome * 1
         return chrome
 
-
-    #breed parents to create children
+    # breed parents to create children
     def breed(sprogs, p1, p2):
         for i in range(sprogs):
             child = []
@@ -131,7 +134,7 @@ def mutate_population(children, fittest, second, mutants):
                     k = mutate_chromosome(k)
                     child.append(k)
 
-                count +=1
+                count += 1
             pop_list.append(child)
 
     breed(children, fittest, second)
@@ -145,7 +148,7 @@ def mutate_population(children, fittest, second, mutants):
     breed(2, fittest, rand1)
     breed(2, fittest, rand2)
 
-    #create mutants of fittest
+    # create mutants of fittest
     for i in range(mutants):
         mutant = []
         for k in fittest:
@@ -161,8 +164,9 @@ def mutate_population(children, fittest, second, mutants):
 
     return pop_list
 
+
 def multi_core_test(cores, max, params_vector):
-    #TODO change this so params can be any size
+    # TODO change this so params can be any size
     params = {
         'v1a': params_vector[0],
         'v1b': params_vector[1],
@@ -190,7 +194,7 @@ def multi_core_test(cores, max, params_vector):
 
     results = pool.map(test_against_real_data, jobs)
 
-    #make this dynamic, cast to float?
+    # make this dynamic, cast to float?
     rms = sum([thing[0] for thing in results]) / cores
     meds = sum([thing[1] for thing in results]) / cores
     bias = sum([thing[2] for thing in results]) / cores
@@ -198,15 +202,16 @@ def multi_core_test(cores, max, params_vector):
     # "%-15s %-15s" % (rms, meds)
     data = (rms, meds, bias)
 
-    #return meds
+    # return meds
     return data
 
+
 if __name__ == '__main__':
-    min     = 1
-    max     = int(os.getenv('MAX', 100))
-    pop     = int(os.getenv('POP', 10))
-    cores   = int(os.getenv('CORES', 4))
-    gens    = int(os.getenv('GENERATIONS', 100))
+    min = 1
+    max = int(os.getenv('MAX', 100))
+    pop = int(os.getenv('POP', 10))
+    cores = int(os.getenv('CORES', 4))
+    gens = int(os.getenv('GENERATIONS', 100))
 
     PROCESSES = cores
     pool = Pool(PROCESSES)
@@ -214,12 +219,11 @@ if __name__ == '__main__':
     print "%-15s %-15s %-15s %-45s" % ('Number', 'pop size', 'Cores', 'Generations')
     print "%-15s %-15s %-15s %-45s" % (max, pop, cores, gens)
 
-
     fittest_set = []
     second_set = []
 
-    best_fitness = (10,10,10)
-    second_fitness = (10,10,10)
+    best_fitness = (10, 10, 10)
+    second_fitness = (10, 10, 10)
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
     folder = 'results/'
@@ -230,7 +234,6 @@ if __name__ == '__main__':
 
         new_pop = create_new_population(pop)
         fit_results = test_population(new_pop, best_fitness, second_fitness, fittest_set, second_set)
-
 
         fittest_set = fit_results[0]
         best_fitness = fit_results[1]
@@ -246,13 +249,13 @@ if __name__ == '__main__':
             # print " "
             fittest_set = fit_results[0]
             best_fitness = fit_results[1]
-            #best_fitness = best_fitness[1]
+            # best_fitness = best_fitness[1]
 
             second_set = fit_results[2]
             second_fitness = fit_results[3]
             sec_fit = second_fitness[1]
 
-            #print "%-5s %-45s %-5s %-45s" % (best_fitness, fittest_set, second_fitness, second_set)
+            # print "%-5s %-45s %-5s %-45s" % (best_fitness, fittest_set, second_fitness, second_set)
             print "trying again"
 
         gen = 0
@@ -264,7 +267,7 @@ if __name__ == '__main__':
             def pick_random_set():
                 not_fittest = 1
                 while not_fittest == 1:
-                    randset = random.randint(0,9)
+                    randset = random.randint(0, 9)
                     randset = new_pop[randset]
                     if randset != fittest_set:
                         not_fittest = 0
