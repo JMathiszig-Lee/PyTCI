@@ -4,6 +4,7 @@ import random
 import time
 import csv
 import os
+import requests
 from multiprocessing import Pool
 
 
@@ -43,7 +44,7 @@ def create_new_set():
         new_set[count] = i
         count += 1
 
-return new_set
+        return new_set
 
 
 def create_new_population(size):
@@ -139,6 +140,7 @@ def mutate_population(children, fittest, second, mutants):
 
     breed(children, fittest, second)
 
+    # immigration to escape local minima
     rand1 = create_new_set()
     rand2 = create_new_set()
 
@@ -208,10 +210,10 @@ def multi_core_test(cores, max, params_vector):
 
 if __name__ == '__main__':
     min = 1
-    max = int(os.getenv('MAX', 100))
+    max = int(os.getenv('MAX', 10))
     pop = int(os.getenv('POP', 10))
-    cores = int(os.getenv('CORES', 4))
-    gens = int(os.getenv('GENERATIONS', 100))
+    cores = int(os.getenv('CORES', 3))
+    gens = int(os.getenv('GENERATIONS', 10))
 
     PROCESSES = cores
     pool = Pool(PROCESSES)
@@ -284,3 +286,13 @@ if __name__ == '__main__':
 
             print "%-5s %-15s %-15s %-45s" % (gen, best_fitness[1], second_fitness[1], fittest_set)
             wr.writerow(fit_results)
+
+        # post data to microservice
+        payload = {
+            'date': fileloc,
+            'fitness': best_fitness[1],
+            'model': "test model"
+        }
+        url = 'http://127.0.0.1:9090/v1.0/runs/'
+        r = requests.post(url, json = payload)
+        print r.text
