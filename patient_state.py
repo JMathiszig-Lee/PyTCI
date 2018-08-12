@@ -24,12 +24,7 @@ class PatientState:
         self.k21 = ((params['k21a'] + params['k21b'] * (age - params['age_offset'])) / v2) / 60
         self.k31 = params['k31'] / 60
 
-        self.keo = 0.456
-        # TODO sort out the effect site maths as this is spitting out weird stuff
-        self.veo = self.keo/(self.v1 * 10000)
         self.keo = 0.456 / 60
-
-        self.k1e = self.keo/self.veo
         self.xeo = 0.0
 
     def give_drug(self, drug_milligrams):
@@ -105,9 +100,9 @@ class PatientState2:
 
         lean_body_mass = self.__lean_body_mass(weight, height, sex)
 
-        self.v1 = (params['v1a'] - params['v1b']*(age - params['age_offset'])) * (params['v1c'] * (lean_body_mass - params['lbm_offset']))
-        self.v2 = params['v2a'] * lean_body_mass
-        self.v3 = params['v3a'] * weight
+        self.v1 = ((params['v1a'] * 50) - params['v1b']*(age - (params['age_offset']) * 100)) * (params['v1c'] * (lean_body_mass - (params['lbm_offset'] * 100)))
+        self.v2 = params['v2a'] * lean_body_mass * 2
+        self.v3 = params['v3a'] * weight * 5
 
         # Initial concentration is zero in all components
         self.x1 = 0.0

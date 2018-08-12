@@ -25,19 +25,9 @@ def create_population(size):
 
 
 def create_new_set():
-    # TODO make this all 0,1 so we can easily switch between models for a variable size population
-    # this means setting the magnitude within the patientstateX class
     new_set = []
-    new_set.append(random.uniform(0, 50))    # v1a
-    new_set.append(random.uniform(0, 1))     # v1b
-    new_set.append(random.uniform(0, 100))   # age_offset
-    new_set.append(random.uniform(0, 1))     # v1c
-    new_set.append(random.uniform(0, 100))   # lbm_offset
-    new_set.append(random.uniform(0, 2))   # v2a
-    new_set.append(random.uniform(0, 5))    # v3a
-    new_set.append(random.uniform(0, 1))    # k10a
-    new_set.append(random.uniform(0, 1))    # k12
-    new_set.append(random.uniform(0, 1))    # k13
+    for i in range(setlength):
+        new_set.append(random.uniform(0, 1))
     count = 0
     for k in new_set:
         i = round(k, 4)
@@ -58,12 +48,7 @@ def create_new_population(size):
 
 
 def test_population(pop, best, second, one, two):
-    # print " "
-    # print "********"
-    # print "%-40s %-40s" % ('best', 'second')
-    # print "%-40s %-40s" % (best, second)
-    # print "********"
-    # print " "
+
     best_fitness = best[1]
     second_fitness = second[1]
 
@@ -76,7 +61,6 @@ def test_population(pop, best, second, one, two):
     for i in pop:
         try:
             result = multi_core_test(cores, max, i)
-
             fitness = result[1]
 
             if fitness < best_fitness:
@@ -212,8 +196,9 @@ if __name__ == '__main__':
     min = 1
     max = int(os.getenv('MAX', 10))
     pop = int(os.getenv('POP', 10))
-    cores = int(os.getenv('CORES', 3))
+    cores = int(os.getenv('CORES', 2))
     gens = int(os.getenv('GENERATIONS', 10))
+    setlength = 10
 
     PROCESSES = cores
     pool = Pool(PROCESSES)
@@ -246,18 +231,14 @@ if __name__ == '__main__':
         while sec_fit > 9.9:
             new_pop = create_new_population(pop)
             fit_results = test_population(new_pop, best_fitness, second_fitness, fittest_set, second_set)
-            # print " "
-            # print "results: " +  str(fit_results)
-            # print " "
+
             fittest_set = fit_results[0]
             best_fitness = fit_results[1]
-            # best_fitness = best_fitness[1]
 
             second_set = fit_results[2]
             second_fitness = fit_results[3]
             sec_fit = second_fitness[1]
 
-            # print "%-5s %-45s %-5s %-45s" % (best_fitness, fittest_set, second_fitness, second_set)
             print "trying again"
 
         gen = 0
@@ -294,5 +275,7 @@ if __name__ == '__main__':
             'model': "test model"
         }
         url = 'http://127.0.0.1:9090/v1.0/runs/'
+
+
         r = requests.post(url, json = payload)
         print r.text
