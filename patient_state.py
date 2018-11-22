@@ -151,9 +151,9 @@ class MarshState:
       def __init__(self, age, weight, height, sex, params):
         self.params = params
         
-        self.v1 = params['v1a'] * weight * 0.5
+        self.v1 = params['v1a'] * weight
         self.v2 = params['v2a'] * weight 
-        self.v3 = params['v3a'] * weight * 5
+        self.v3 = params['v3a'] * weight
 
         # Initial concentration is zero in all components
         self.x1 = 0.0
