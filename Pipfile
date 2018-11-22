@@ -10,6 +10,8 @@ python = "*"
 numpy = "*"
 statistics = "*"
 requests = "*"
+processing = "*"
+multiprocessing = "*"
 
 [requires]
 python_version = "2.7"

@@ -1,6 +1,6 @@
 from csvreader import read_patient_csv
 from patient_solver import solve_for_patient
-from patient_solver import solve_for_schnider
+from patient_solver import solve_for_schnider, solve_for_marsh
 from patient_state import PatientState
 import math
 import statistics

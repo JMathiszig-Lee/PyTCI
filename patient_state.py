@@ -146,6 +146,66 @@ class PatientState2:
     def __repr__(self):
         return "PatientState(x1=%f, x2=%f, x3=%f, xeo=%f)" % (self.x1, self.x2, self.x3, self.xeo)
 
+class MarshState:
+  
+      def __init__(self, age, weight, height, sex, params):
+        self.params = params
+        
+        self.v1 = params['v1a'] * weight * 0.5
+        self.v2 = params['v2a'] * weight 
+        self.v3 = params['v3a'] * weight * 5
+
+        # Initial concentration is zero in all components
+        self.x1 = 0.0
+        self.x2 = 0.0
+        self.x3 = 0.0
+
+        self.k10 = params['k10a'] / 60
+        self.k12 = params['k12'] /60
+        self.k13 = params['k13'] / 60
+        self.k21 = params['k12'] / 60
+        self.k31 = params['k13'] / 60
+
+      def give_drug(self, drug_milligrams):
+        self.x1 = self.x1 + drug_milligrams / self.v1
+
+      def wait_time(self, time_seconds):
+
+        x1k10 = self.x1 * self.k10
+        x1k12 = self.x1 * self.k12
+        x1k13 = self.x1 * self.k13
+        x2k21 = self.x2 * self.k21
+        x3k31 = self.x3 * self.k31
+
+        self.x1 = self.x1 + (x2k21 - x1k12 + x3k31 - x1k13 - x1k10) * time_seconds
+        self.x2 = self.x2 + (x1k12 - x2k21) * time_seconds
+        self.x3 = self.x3 + (x1k13 - x3k31) * time_seconds
+        
+      @staticmethod  
+      def with_marsh_params(age, weight, height, sex):
+        params = MarshState.marsh_params()
+        
+        return MarshState(age, weight, height, sex, params)
+
+      @staticmethod
+      def marsh_params():
+        params = {
+          'v1a':  0.228,
+          'v2a': 0.463,
+          'v3a': 2.893,
+          'k10a': 0.119,
+          'k12': 0.112,
+          'k13': 0.042,
+          'k21': 0.055,
+          'k31': 0.0033,
+          'keo': 0.26,
+        }
+        
+        return params
+      
+      def __repr__(self):
+        return "PatientState(x1=%f, x2=%f, x3=%f)" % (self.x1, self.x2, self.x3)
+
 if __name__ == '__main__':
     patient = PatientState.with_schnider_params(34, 46.3, 157.5, "f")
     print "Initial state: " + str(patient)
@@ -154,10 +214,20 @@ if __name__ == '__main__':
     print "After giving drug: " + str(patient)
 
     times = [126, 240, 483, 962, 1803, 3583]
+    
+    patient2 = MarshState.with_marsh_params(34, 46.3, 157.5, "f")
+    print "Initial state: " + str(patient2)
+
+    patient2.give_drug(90)
+    print "After giving drug: " + str(patient2)
+
+    times = [126, 240, 483, 962, 1803, 3583] 
 
     for t in range(961):
         patient.wait_time(1)
+        patient2.wait_time(1)
+        
         #print str(t) + str(patient)
         mod = t % 30
         if mod == 0:
-            print str(t) + str(patient)
+            print str(t) + str(patient) + str(patient2)
