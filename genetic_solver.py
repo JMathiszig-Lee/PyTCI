@@ -57,34 +57,23 @@ def test_population(pop, best, second, one, two):
     #print "best: " + str(best_fitness)
 
     #switching between the tuple and value is confusing and i'm getting upset
-
+    pop_list = []
     for i in pop:
         try:
             result = multi_core_test(cores, max, i)
             fitness = result[1]
 
-            if fitness < best_fitness:
-                # move current best to second best
-                second = best
-                second_set = fittest_set
+            pop_list.append([fitness, i, result])
 
-                best = result
-                fittest_set = i
-
-            elif fitness < second_fitness and fitness != best_fitness:
-                second = result
-                second_set = i
-
-
-            # these should be tuples
-            # print "%-40s %-40s" % ('best', 'second')
-            # print "%-40s %-40s" % (best, second)
         except:
             result = (99, 99, 99)
-            # print "except"
-            # print " "
 
-    output = (fittest_set, best, second_set, second)
+
+
+
+    pop_list.sort()
+    #output = (fittest_set, best, second_set, second)
+    output = (pop_list[0][1], pop_list[0][2], pop_list[1][1], pop_list[1][2])
 
     return output
 
@@ -228,6 +217,7 @@ if __name__ == '__main__':
         second_fitness = fit_results[3]
         sec_fit = second_fitness[1]
 
+        max_tries = 0
         while sec_fit > 9.9:
             new_pop = create_new_population(pop)
             fit_results = test_population(new_pop, best_fitness, second_fitness, fittest_set, second_set)
@@ -238,6 +228,10 @@ if __name__ == '__main__':
             second_set = fit_results[2]
             second_fitness = fit_results[3]
             sec_fit = second_fitness[1]
+            #ctrl c with multiple cores is bad so give nicer way of exiting
+            max_tries += 1
+            if max_tries == 10:
+                quit()
 
             print "trying again"
 
@@ -247,6 +241,7 @@ if __name__ == '__main__':
 
         for i in range(gens):
 
+            #TODO delete this function?
             def pick_random_set():
                 not_fittest = 1
                 while not_fittest == 1:
@@ -256,7 +251,7 @@ if __name__ == '__main__':
                         not_fittest = 0
                 return randset
 
-            new_pop = mutate_population(4, fittest_set, second_set, 4)
+            new_pop = mutate_population(10, fittest_set, second_set, 10)
 
             gen +=1
             fit_results = test_population(new_pop, best_fitness, second_fitness, fittest_set, second_set)
