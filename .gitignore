@@ -1,4 +1,8 @@
 *.pyc
+*.vscode
 
 results/*
 !results/.gitkeep 
+
+.vscode/*
+.vscode
