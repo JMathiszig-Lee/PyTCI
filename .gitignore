@@ -1,8 +1,7 @@
 *.pyc
-*.vscode
 
 results/*
 !results/.gitkeep 
 
-.vscode/*
+.pytest_cache
 .vscode
