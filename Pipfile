@@ -6,12 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-python = "*"
-numpy = "*"
-statistics = "*"
-requests = "*"
-processing = "*"
-multiprocessing = "*"
+pytest = "*"
 
 [requires]
-python_version = "2.7"
+python_version = "3.7"
