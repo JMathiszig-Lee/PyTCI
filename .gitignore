@@ -1,6 +1,4 @@
 *.pyc
-.~lock.testpatient.csv#
-.~lock*
 
 results/*
 !results/.gitkeep 

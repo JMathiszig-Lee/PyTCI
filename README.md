@@ -1,3 +1,3 @@
-# Propofol
+# PyTCI
 
-nhs hackday project trying to create a new propofol model
+A python package for Target Controlled infusions. Spawned from the NHS Hack Day project https://github.com/JMathiszig-Lee/Propofol
