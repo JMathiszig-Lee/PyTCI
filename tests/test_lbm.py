@@ -16,6 +16,7 @@ def test_bmi():
 
 def test_boer():
     assert leanbodymass.boer(180, 60, "m") == 53.3
+    assert leanbodymass.boer(165, 90, "f") == 52.4
 
     with pytest.raises(ValueError):
         leanbodymass.boer(180, 60, "g")
@@ -23,6 +24,8 @@ def test_boer():
 
 def test_hume66():
     assert leanbodymass.hume66(180, 60, "m") == 51.2
+    assert leanbodymass.hume66(165, 90, "f") == 52.3
+
     with pytest.raises(ValueError):
         leanbodymass.hume66(180, 60, "g")
 
