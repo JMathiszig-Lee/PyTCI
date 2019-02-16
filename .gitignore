@@ -4,3 +4,6 @@ results/*
 !results/.gitkeep 
 
 .pytest_cache
+.vscode
+
+*.xml
