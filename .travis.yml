@@ -8,7 +8,7 @@ install:
   - 'pipenv install --dev'
 
 script:
-  - pytest
+  - pytest --cov=PyTCI
 
 after_success:
   - coveralls
