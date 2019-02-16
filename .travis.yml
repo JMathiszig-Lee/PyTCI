@@ -5,6 +5,7 @@ python:
 
 install:
   - 'pip install pipenv'
+  - 'pip install python-coveralls'
   - 'pipenv install --dev'
 
 script:
