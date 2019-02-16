@@ -31,7 +31,7 @@ def boer(height: float, weight: float, sex: str) -> float:
 
 
 def hume66(height: float, weight: float, sex: str) -> float:
-    """ returns lean body mass as per the 1966 Hume papre """
+    """ returns lean body mass as per the 1966 Hume paper """
     """ Hume, R "Prediction of lean body mass from height and weight.". J Clin Pathol. 1966 Jul; 19(4):389-91"""
 
     if sex != "m" and sex != "f":
@@ -46,6 +46,21 @@ def hume66(height: float, weight: float, sex: str) -> float:
 
     return round(lbm, 1)
 
+def hume71(height: float, weight: float, sex: str) -> float:
+    """ returns lean body mass from Hume & Weyers(1971) """
+    """ Relationship between total body water and surface area in normal and obese subjects. Hume R, Weyers E J Clin Pathol 24 p234-8 (1971 Apr) """
+
+    if sex != "m" and sex != "f":
+        raise ValueError(
+            "Unknown sex '%s'. This algorithm can only handle 'm' and 'f'. :(" % sex
+        )
+
+    if sex == "m":
+        lbm = (0.4066 * weight) + (0.2668 * height) - 19.19
+    else:
+        lbm = (0.2518 * weight) + (0.41813 * height) - 48.32
+
+    return round(lbm, 1)
 
 def bmi(height: float, weight: float) -> float:
     """calculates BMI"""

@@ -3,5 +3,4 @@
 results/*
 !results/.gitkeep 
 
-.pytest_cache
-.vscode
+.pytest_cachelint

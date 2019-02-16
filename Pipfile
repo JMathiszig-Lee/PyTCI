@@ -4,10 +4,12 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pylint = "*"
+python-coveralls = "*"
+pytest = "*"
 
 [packages]
 pytest = "*"
-pre-commit = "*"
 
 [requires]
 python_version = "3.7"
