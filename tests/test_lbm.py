@@ -1,5 +1,5 @@
 import pytest
-from ..weights import leanbodymass
+from PyTCI.weights import leanbodymass
 
 
 def test_james():

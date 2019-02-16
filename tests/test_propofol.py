@@ -1,4 +1,4 @@
-from ..models import propofol
+from PyTCI.models import propofol
 #source for values independantly derived https://academic.oup.com/view-large/91165989
 
 def test_schnider():
