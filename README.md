@@ -8,9 +8,15 @@ Spawned from the NHS Hack Day project https://github.com/JMathiszig-Lee/Propofol
 [![Coverage Status](https://coveralls.io/repos/github/JMathiszig-Lee/PyTCI/badge.svg?branch=master)](https://coveralls.io/github/JMathiszig-Lee/PyTCI?branch=master)
 
 # Installation
-
-
-#Usage
+if using pip
+```python
+pip install PyTCI
+```
+if using pipenv (you should, it's great)
+```python
+pipenv install PyTCI
+```
+# Usage
 PyTCI currently supports the following:
 
 **Body Mass equations:**
