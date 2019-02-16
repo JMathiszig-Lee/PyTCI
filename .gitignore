@@ -3,4 +3,4 @@
 results/*
 !results/.gitkeep 
 
-.pytest_cachelint
+.pytest_cache
