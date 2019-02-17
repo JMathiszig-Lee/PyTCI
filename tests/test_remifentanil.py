@@ -7,3 +7,7 @@ def test_minto():
 
     testpatient.give_drug(50)
     assert round(testpatient.x1, 2) == 8.84
+
+    for _ in range(60):
+        testpatient.wait_time(1)
+    assert round(testpatient.x1, 2) == 3.88
