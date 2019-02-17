@@ -5,7 +5,7 @@ class Remifentanil:
     """ Base Class for remifentanil models """
 
     # TODO this should probably be a generic 3 compartment model
-    def __init__(self,):
+    def setup(self):
 
         # Initial concentration is zero in all components
         self.x1 = 0.0
@@ -62,4 +62,5 @@ class Minto(Remifentanil):
 
         self.keo = 0.595 - 0.007 * (age - 40)
 
-        Remifentanil.__init__
+        Remifentanil.setup(self)
+        
