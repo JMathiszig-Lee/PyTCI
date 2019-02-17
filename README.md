@@ -39,6 +39,8 @@ example:
 **Propofol models:**
 * Schnider
 * Marsh
+* Kataria
+* Paedfusor
 
 **Remifentanil models**
 * Minto

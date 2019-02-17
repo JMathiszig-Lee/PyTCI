@@ -1,8 +1,24 @@
+import warnings
 from ..weights import leanbodymass
 
 
 class Propofol:
     """ Base Class for Propofol 3 compartment model """
+    def setup(self):
+
+        # Initial concentration is zero in all components
+        self.x1 = 0.0
+        self.x2 = 0.0
+        self.x3 = 0.0
+        self.xeo = 0.0
+
+        # divide by 60 as we will be working in seconds
+        self.k10 /= 60
+        self.k12 /= 60
+        self.k13 /= 60
+        self.k21 /= 60
+        self.k31 /= 60
+        self.keo /= 60
 
     def give_drug(self, drug_milligrams):
         """ add bolus of drug to central compartment """
@@ -36,11 +52,6 @@ class Schnider(Propofol):
     # sex: 'm' or 'f'
 
     def __init__(self, age, weight, height, sex):
-        # Initial concentration is zero in all components
-        self.x1 = 0.0
-        self.x2 = 0.0
-        self.x3 = 0.0
-        self.xeo = 0.0
 
         lean_body_mass = leanbodymass.james(height, weight, sex)
 
@@ -61,13 +72,7 @@ class Schnider(Propofol):
 
         self.keo = 0.456
 
-        # divide by 60 as we will be working in seconds
-        self.k10 /= 60
-        self.k12 /= 60
-        self.k13 /= 60
-        self.k21 /= 60
-        self.k31 /= 60
-        self.keo /= 60
+        Propofol.setup(self)
 
 
 class Marsh(Propofol):
@@ -80,11 +85,6 @@ class Marsh(Propofol):
     """
 
     def __init__(self, weight: float):
-        # Initial concentration is zero in all components
-        self.x1 = 0.0
-        self.x2 = 0.0
-        self.x3 = 0.0
-        self.xeo = 0.0
 
         self.v1 = 0.228 * weight
         self.v2 = 0.463 * weight
@@ -98,10 +98,55 @@ class Marsh(Propofol):
 
         self.keo = 0.26
 
-        # divide by 60 as we will be working in seconds
-        self.k10 /= 60
-        self.k12 /= 60
-        self.k13 /= 60
-        self.k21 /= 60
-        self.k31 /= 60
-        self.keo /= 60
+        Propofol.setup(self)
+
+class Kataria(Propofol):
+    """Kataria paediatric model
+    Intended age range 3-11
+
+    Units:
+    Age
+    Weight (kg)"""
+
+    def __init__(self, weight: float, age: float):
+
+        self.v1 = 0.38
+        self.v2 = (0.59 * weight) + (3.1 * age) - 13
+        self.v3 = 6.12
+
+        cl1 = 0.037 * weight
+        cl2 = 0.063 * weight
+        cl3 = 0.025 * weight
+
+        self.k10 = 0
+        self.k12 = 0
+        self.k13 = 0
+        self.k21 = 0
+        self.k31 = 0
+
+        self.keo = 0
+
+        Propofol.setup(self)
+
+class Paedfusor(Propofol):
+    """Paedfusor paediatric model
+    Intended age range 1-12
+
+    Units:
+    Weight (kg)"""
+
+    def __init__(self, weight: float, age: float):
+
+        self.v1 = 0.46
+        self.v2 = 0.95 * weight
+        self.v3 = 5.85
+
+        self.k10 = 0.153 * (weight ** -0.3)
+        self.k12 = 0.114
+        self.k13 = 0.042
+        self.k21 = 0.055
+        self.k31 = 0.0033
+
+        self.keo = 0
+
+        Propofol.setup(self)
