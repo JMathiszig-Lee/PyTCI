@@ -38,6 +38,9 @@ example:
 * Schnider
 * Marsh
 
+**Remifentanil models**
+* Minto
+
 example:
 ```python
 >>> from PyTCI.models import propofol
@@ -82,3 +85,4 @@ class MyNewModel(Propofol):
         self.k31 /= 60
         self.keo /= 60
 ```
+

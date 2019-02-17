@@ -31,6 +31,9 @@ def test_hume66():
 
 
 def test_hume71():
+    assert leanbodymass.hume71(180, 60, "m") == 53.2
+    assert leanbodymass.hume71(165, 90, "f") == 52.2
+
     with pytest.raises(ValueError):
         leanbodymass.hume71(180, 60, "g")
 

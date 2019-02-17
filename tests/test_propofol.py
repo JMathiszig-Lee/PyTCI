@@ -11,6 +11,10 @@ def test_schnider():
     testpatient.give_drug(200)
     assert round(testpatient.x1, 2) == 46.84
 
+    for _ in range(60):
+        testpatient.wait_time(1)
+    assert round(testpatient.x1, 2) == 22.03
+
 def test_marsh():
     testpatient = propofol.Marsh(70)
 
