@@ -46,6 +46,7 @@ def hume66(height: float, weight: float, sex: str) -> float:
 
     return round(lbm, 1)
 
+
 def hume71(height: float, weight: float, sex: str) -> float:
     """ returns lean body mass from Hume & Weyers(1971) """
     """ Relationship between total body water and surface area in normal and obese subjects. Hume R, Weyers E J Clin Pathol 24 p234-8 (1971 Apr) """
@@ -61,11 +62,6 @@ def hume71(height: float, weight: float, sex: str) -> float:
         lbm = (0.2518 * weight) + (0.4720 * height) - 48.32
 
     return round(lbm, 1)
-
-def bmi(height: float, weight: float) -> float:
-    """calculates BMI"""
-    bmi = weight / ((height / 100) ** 2)
-    return round(bmi, 1)
 
 
 def janmahasation(height: float, weight: float, sex: str) -> float:
@@ -83,3 +79,34 @@ def janmahasation(height: float, weight: float, sex: str) -> float:
         lbm = (9270 * weight) / (8780 + 244 * bodymass)
 
     return round(lbm, 1)
+
+
+def bmi(height: float, weight: float) -> float:
+    """calculates BMI"""
+    bmi = weight / ((height / 100) ** 2)
+    return round(bmi, 1)
+
+
+def idealbodyweight(height: float, sex: str) -> float:
+    """ ideal body weight as per ARDSnet/Devine  """
+
+    if sex != "m" and sex != "f":
+        raise ValueError(
+            "Unknown sex '%s'. This algorithm can only handle 'm' and 'f'. :(" % sex
+        )
+
+    if sex == "m":
+        ibm = 50.0 + 0.91 * (height - 152.4)
+    else:
+        ibm = 45.5 + 0.91 * (height - 152.4)
+
+    return round(ibm, 1)
+
+
+def adjustedbodyweight(height: float, weight: float, sex: str) -> float:
+    """ adjusted body weight for obese patients """
+
+    ibw = idealbodyweight(height, sex)
+    abw = ibw + 0.4 * (weight - ibw)
+
+    return round(abw, 1)

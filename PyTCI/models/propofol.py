@@ -25,15 +25,6 @@ class Propofol:
 
         self.xeo = self.xeo + (xk1e - xke1) * time_seconds
 
-    def __repr__(self):
-        # TODO this should probably be a dictionary
-        return "PatientState(x1=%f, x2=%f, x3=%f, xeo=%f)" % (
-            self.x1,
-            self.x2,
-            self.x3,
-            self.xeo,
-        )
-
 
 class Schnider(Propofol):
     """ Implementation of the schnider model """

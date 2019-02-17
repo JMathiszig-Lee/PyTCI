@@ -44,3 +44,18 @@ def test_janmahasation():
 
     with pytest.raises(ValueError):
         leanbodymass.janmahasation(180, 60, "g")
+
+
+def test_idealbodyweight():
+    assert leanbodymass.idealbodyweight(180, 'm') == 75.1
+    assert leanbodymass.idealbodyweight(165, "f") == 57.0
+
+    with pytest.raises(ValueError):
+        leanbodymass.idealbodyweight(180, "g")
+
+def test_adjustedbodyweight():
+    assert leanbodymass.adjustedbodyweight(180, 80, "m") == 77.1
+    assert leanbodymass.adjustedbodyweight(165, 90, "f") == 70.2
+
+    with pytest.raises(ValueError):
+        leanbodymass.adjustedbodyweight(180, 60, "g")
