@@ -58,7 +58,7 @@ def hume71(height: float, weight: float, sex: str) -> float:
     if sex == "m":
         lbm = (0.4066 * weight) + (0.2668 * height) - 19.19
     else:
-        lbm = (0.2518 * weight) + (0.41813 * height) - 48.32
+        lbm = (0.2518 * weight) + (0.4720 * height) - 48.32
 
     return round(lbm, 1)
 
@@ -83,7 +83,3 @@ def janmahasation(height: float, weight: float, sex: str) -> float:
         lbm = (9270 * weight) / (8780 + 244 * bodymass)
 
     return round(lbm, 1)
-
-
-if __name__ == "__main__":
-    print(james(165, 90, "f"))
