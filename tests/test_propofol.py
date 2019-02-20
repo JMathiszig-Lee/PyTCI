@@ -44,4 +44,5 @@ def test_paedfusor():
     testchild = propofol.Paedfusor(20, 6)
 
     assert testchild.v2 == 19
-    #assert testchild.k10 == 0.063
+    testk10 = 0.0624 /60
+    assert round(testchild.k10, 5) == testk10

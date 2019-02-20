@@ -138,7 +138,13 @@ class Paedfusor(Propofol):
     Intended age range 1-12
 
     Units:
-    Weight (kg)"""
+    Weight (kg)
+
+    Reference:
+    Absalom, A, Kenny, G
+    BJA: British Journal of Anaesthesia, Volume 95, Issue 1, 1 July 2005, Pages 110, 
+    https://doi.org/10.1093/bja/aei567
+    """
 
     def __init__(self, weight: float, age: float):
 
@@ -151,10 +157,7 @@ class Paedfusor(Propofol):
         self.v2 = 0.95 * weight
         self.v3 = 5.85 * weight
 
-
-        i = -0.3
-        self.k10 = 0.153 * (weight ** i)
-        
+        self.k10 = 0.1527 * (weight ** (-0.3))
         self.k12 = 0.114
         self.k13 = 0.042
         self.k21 = 0.055
