@@ -1,9 +1,11 @@
 import warnings
+from math import exp
 from ..weights import leanbodymass
 
 
 class Propofol:
     """ Base Class for Propofol 3 compartment model """
+
     def setup(self):
 
         # Initial concentration is zero in all components
@@ -100,6 +102,7 @@ class Marsh(Propofol):
 
         Propofol.setup(self)
 
+
 class Kataria(Propofol):
     """Kataria paediatric model
     Intended age range 3-11
@@ -120,10 +123,10 @@ class Kataria(Propofol):
         self.Q2 = 0.063 * weight
         self.Q3 = 0.025 * weight
 
-        #now covert to rate constants
-        #source http://www.pfim.biostat.fr/PFIM_PKPD_library.pdf page 8
+        # now covert to rate constants
+        # source http://www.pfim.biostat.fr/PFIM_PKPD_library.pdf page 8
 
-        self.k10 = self.Q1 / self.v1 
+        self.k10 = self.Q1 / self.v1
         self.k12 = self.Q2 / self.v1
         self.k13 = self.Q3 / self.v1
         self.k21 = (self.k12 * self.v1) / self.v2
@@ -132,6 +135,7 @@ class Kataria(Propofol):
         self.keo = 0
 
         Propofol.setup(self)
+
 
 class Paedfusor(Propofol):
     """Paedfusor paediatric model
@@ -168,6 +172,7 @@ class Paedfusor(Propofol):
 
         Propofol.setup(self)
 
+
 class Eleveld(Propofol):
     """Eleveld universal model
 
@@ -177,8 +182,8 @@ class Eleveld(Propofol):
     Age (years)
 
     Special methods for this model
-    .arterial()
-    Switches from venous(default) to arterial targerting
+    .venous()
+    Switches from arterial(default) to arterial targerting
 
     .with_opiates()
     models co-administration with opiates
@@ -186,15 +191,108 @@ class Eleveld(Propofol):
     Reference:
 
     """
+
     def __init__(self, age: int, weight: float, height: int, sex: str):
+        if sex != "m" and sex != "f":
+                raise ValueError(
+                    "Unknown sex '%s'. This algorithm can only handle 'm' and 'f'. :("
+                    % sex
+                )
+
+        # post menstrual age
+        pma = age * 52 + 40
+
+        # constants from paper to help reduce transcioption errors
+        theta01 = 6.28
+        theta02 = 25.5
+        theta03 = 273
+        theta04 = 1.79
+        theta05 = 1.81
+        theta06 = 1.11
+        theta07 = 0.191
+        theta08 = 42.3
+        theta09 = 9.06
+        theta10 = -0.0156
+        theta11 = -0.00286
+        theta12 = 33.6
+        theta13 = -0.0138
+        theta14 = 68.3
+        theta15 = 2.10
+        theta16 = 1.30
+        theta17 = 1.42
+        theta18 = 0.68
+
+        # al-sallami allometric scaling thing
+        def alsallami(height, weight, sex):
+
+            if sex == "m":
+                alsal = 0.88 + (
+                    0.12 / (1 + (age / 13.4) ** -12.7)
+                ) * leanbodymass.janmahasation(height, weight, sex)
+            else:
+                alsal = 1.11 + (
+                    (1 - 1.11) / (1 + (age / 7.1) ** -1.1)
+                ) * leanbodymass.janmahasation(height, weight, sex)
+
+            return alsal
+
+        def ageing(i, age):
+            """ ageing function"""
+            return exp(i * (age - ageref))
+
+        # sigmoid function
+        def sigmoid(x, e50, y):
+            """ sigmoid function from eleveld paper """
+            sig = (x ** y) / ((x ** y) + (e50 ** y))
+            return sig
+
+        def central(i):
+            """ central function """
+            return sigmoid(i, theta12, 1)
+
+        def clmat(j):
+            """ returns central maturation """
+            return sigmoid(pma, theta08, theta09)
+
+        # q3 maturation
+        q3mat = sigmoid(pma, theta14, 1)
+
+        # opiate coeffecient, changed by .with_opiates()
+        self.opiatesv3 = 1
+        self.opiatescl = 1
+
+        self.v1 = theta01 * (central(age) / central(ageref)) * exp(0.610)
+        self.v2 = theta02 * (weight / weightref) * ageing(theta10, age) * exp(0.565)
+        self.v3 = theta03 * alsallami(height, weight, sex) * opiatesv3 * exp(0.597)
+
+        #clearance
+        if sex == "m":
+            self.q1 = theta04 * (weight/weightref)**0.75 * (q3mat / q3matref) * self.opiatescl * exp(0.265)
+        else:   
+            self.q1 = theta15 * (weight/weightref)**0.75 * (q3mat / q3matref) * self.opiatescl * exp(0.265)  
+
+        self.q2 = theta05 * (self.v2 ** 0.75) * (1 + theta16 * (1 - q3mat)) * exp(0.346)
+        self.q3 = theta06 * (self.v3 ** 0.75) * (q3mat / q3matref) * exp(0.209)
+
+        self.keo = theta02 * ((weight/70) ** -0.25) * exp(0.565) 
+
         Propofol.setup(self)
 
-    @classmethod
-    def arterial():
-        """ switches the following parameters to target arterial concentrations"""
-        pass
-        
-    @classmethod
-    def with_opiates():
-        """ switches the following parameters """
-        pass
+        @classmethod
+        def venous():
+            """ switches the following parameters to target venous concentrations
+            V1
+            Ke0
+            Q2
+            """
+            self.v1 = self.v1 * (1 + theta17 * (1 - central(weight)))
+            self.keo = theta08 * ((weight/70) ** -0.25) * exp(0.565) 
+            self.q2 = theta18 * self.q2
+
+        @classmethod
+        def with_opiates():
+            """ switches the opiate parameters
+            using this method indicates opiates are being administered concurrently
+            """
+            self.opiatesv3 = exp(theta13 * age)
+            self.opiatescl = exp(theta11 * age)
