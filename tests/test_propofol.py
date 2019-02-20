@@ -43,6 +43,13 @@ def test_kataria():
 def test_paedfusor():
     testchild = propofol.Paedfusor(20, 6)
 
+    assert round(testchild.v1,1) == 9.2
     assert testchild.v2 == 19
+    assert testchild.v3 == 117.0
+
     testk10 = 0.0624 /60
     assert round(testchild.k10, 5) == testk10
+
+    #test warnings
+    assert propofol.Paedfusor(10, 16)
+    assert propofol.Paedfusor(10, 0.5)
