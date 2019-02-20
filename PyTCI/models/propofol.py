@@ -114,15 +114,18 @@ class Kataria(Propofol):
         self.v2 = (0.59 * weight) + (3.1 * age) - 13
         self.v3 = 6.12
 
-        cl1 = 0.037 * weight
-        cl2 = 0.063 * weight
-        cl3 = 0.025 * weight
+        Q1 = 0.037 * weight
+        Q2 = 0.063 * weight
+        Q3 = 0.025 * weight
 
-        self.k10 = 0
-        self.k12 = 0
-        self.k13 = 0
-        self.k21 = 0
-        self.k31 = 0
+        #now covert to rate constants
+        #source http://www.pfim.biostat.fr/PFIM_PKPD_library.pdf page 8
+
+        self.k10 = Q1 / self.v1 
+        self.k12 = Q2 / self.v1
+        self.k13 = Q3 / self.v1
+        self.k21 = (self.k12 * self.v1) / self.v2
+        self.k31 = (self.k13 * self.v1) / self.v3
 
         self.keo = 0
 
