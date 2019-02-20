@@ -1,5 +1,5 @@
 from PyTCI.models import propofol
-#source for values independantly derived https://academic.oup.com/view-large/91165989
+#source for values in marsh and schnider independantly derived https://academic.oup.com/view-large/91165989
 
 def test_schnider():
     testpatient = propofol.Schnider(40, 70, 170, 'm')
@@ -21,3 +21,27 @@ def test_marsh():
     assert round(testpatient.v1, 1) == 16.0
     assert round(testpatient.v2, 1) == 32.4
     assert round(testpatient.v3, 1) == 202.5
+
+# values for paediatric tests are from:
+# Constant, Isabelle & Rigouzzo, Agnes. (2010). Which model for propofol TCI in children. 
+# Paediatric anaesthesia. 20. 233-9. 10.1111/j.1460-9592.2010.03269.x.
+
+def test_kataria():
+    testchild = propofol.Kataria(20, 6)
+
+    assert testchild.v1 == 7.6
+    assert testchild.v2 == 17.4
+    assert testchild.v3 == 122.4
+
+    assert testchild.Q1 == 0.74
+    assert testchild.Q2 == 1.26
+    assert testchild.Q3 == 0.5
+
+    #test warnings
+    assert propofol.Kataria(10, 13)
+
+def test_paedfusor():
+    testchild = propofol.Paedfusor(20, 6)
+
+    assert testchild.v2 == 19
+    #assert testchild.k10 == 0.063

@@ -109,21 +109,23 @@ class Kataria(Propofol):
     Weight (kg)"""
 
     def __init__(self, weight: float, age: float):
+        if not 2.99 < age < 12:
+            warnings.warn("Age out of range of model validation (3-11)")
 
-        self.v1 = 0.38
+        self.v1 = 0.38 * weight
         self.v2 = (0.59 * weight) + (3.1 * age) - 13
-        self.v3 = 6.12
+        self.v3 = 6.12 * weight
 
-        Q1 = 0.037 * weight
-        Q2 = 0.063 * weight
-        Q3 = 0.025 * weight
+        self.Q1 = 0.037 * weight
+        self.Q2 = 0.063 * weight
+        self.Q3 = 0.025 * weight
 
         #now covert to rate constants
         #source http://www.pfim.biostat.fr/PFIM_PKPD_library.pdf page 8
 
-        self.k10 = Q1 / self.v1 
-        self.k12 = Q2 / self.v1
-        self.k13 = Q3 / self.v1
+        self.k10 = self.Q1 / self.v1 
+        self.k12 = self.Q2 / self.v1
+        self.k13 = self.Q3 / self.v1
         self.k21 = (self.k12 * self.v1) / self.v2
         self.k31 = (self.k13 * self.v1) / self.v3
 
@@ -140,11 +142,19 @@ class Paedfusor(Propofol):
 
     def __init__(self, weight: float, age: float):
 
-        self.v1 = 0.46
-        self.v2 = 0.95 * weight
-        self.v3 = 5.85
+        if age < 1:
+            warnings.warn("age below that for which model is intended")
+        elif age > 12:
+            warnings.warn("Warning: Patient older than intended for model")
 
-        self.k10 = 0.153 * (weight ** -0.3)
+        self.v1 = 0.46 * weight
+        self.v2 = 0.95 * weight
+        self.v3 = 5.85 * weight
+
+
+        i = -0.3
+        self.k10 = 0.153 * (weight ** i)
+        
         self.k12 = 0.114
         self.k13 = 0.042
         self.k21 = 0.055
