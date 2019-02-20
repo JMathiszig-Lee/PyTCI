@@ -21,6 +21,8 @@ PyTCI currently supports the following:
 
 **Body Mass equations:**
 * BMI
+* Ideal body weight (Devine)
+* Adjusted body weight
 * James Equation
 * Boer
 * Hume(1966)
@@ -37,6 +39,8 @@ example:
 **Propofol models:**
 * Schnider
 * Marsh
+* Kataria
+* Paedfusor
 
 **Remifentanil models**
 * Minto

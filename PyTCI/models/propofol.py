@@ -1,8 +1,24 @@
+import warnings
 from ..weights import leanbodymass
 
 
 class Propofol:
     """ Base Class for Propofol 3 compartment model """
+    def setup(self):
+
+        # Initial concentration is zero in all components
+        self.x1 = 0.0
+        self.x2 = 0.0
+        self.x3 = 0.0
+        self.xeo = 0.0
+
+        # divide by 60 as we will be working in seconds
+        self.k10 /= 60
+        self.k12 /= 60
+        self.k13 /= 60
+        self.k21 /= 60
+        self.k31 /= 60
+        self.keo /= 60
 
     def give_drug(self, drug_milligrams):
         """ add bolus of drug to central compartment """
@@ -25,15 +41,6 @@ class Propofol:
 
         self.xeo = self.xeo + (xk1e - xke1) * time_seconds
 
-    def __repr__(self):
-        # TODO this should probably be a dictionary
-        return "PatientState(x1=%f, x2=%f, x3=%f, xeo=%f)" % (
-            self.x1,
-            self.x2,
-            self.x3,
-            self.xeo,
-        )
-
 
 class Schnider(Propofol):
     """ Implementation of the schnider model """
@@ -45,11 +52,6 @@ class Schnider(Propofol):
     # sex: 'm' or 'f'
 
     def __init__(self, age, weight, height, sex):
-        # Initial concentration is zero in all components
-        self.x1 = 0.0
-        self.x2 = 0.0
-        self.x3 = 0.0
-        self.xeo = 0.0
 
         lean_body_mass = leanbodymass.james(height, weight, sex)
 
@@ -70,13 +72,7 @@ class Schnider(Propofol):
 
         self.keo = 0.456
 
-        # divide by 60 as we will be working in seconds
-        self.k10 /= 60
-        self.k12 /= 60
-        self.k13 /= 60
-        self.k21 /= 60
-        self.k31 /= 60
-        self.keo /= 60
+        Propofol.setup(self)
 
 
 class Marsh(Propofol):
@@ -89,11 +85,6 @@ class Marsh(Propofol):
     """
 
     def __init__(self, weight: float):
-        # Initial concentration is zero in all components
-        self.x1 = 0.0
-        self.x2 = 0.0
-        self.x3 = 0.0
-        self.xeo = 0.0
 
         self.v1 = 0.228 * weight
         self.v2 = 0.463 * weight
@@ -107,10 +98,71 @@ class Marsh(Propofol):
 
         self.keo = 0.26
 
-        # divide by 60 as we will be working in seconds
-        self.k10 /= 60
-        self.k12 /= 60
-        self.k13 /= 60
-        self.k21 /= 60
-        self.k31 /= 60
-        self.keo /= 60
+        Propofol.setup(self)
+
+class Kataria(Propofol):
+    """Kataria paediatric model
+    Intended age range 3-11
+
+    Units:
+    Age
+    Weight (kg)"""
+
+    def __init__(self, weight: float, age: float):
+        if not 2.99 < age < 12:
+            warnings.warn("Age out of range of model validation (3-11)")
+
+        self.v1 = 0.38 * weight
+        self.v2 = (0.59 * weight) + (3.1 * age) - 13
+        self.v3 = 6.12 * weight
+
+        self.Q1 = 0.037 * weight
+        self.Q2 = 0.063 * weight
+        self.Q3 = 0.025 * weight
+
+        #now covert to rate constants
+        #source http://www.pfim.biostat.fr/PFIM_PKPD_library.pdf page 8
+
+        self.k10 = self.Q1 / self.v1 
+        self.k12 = self.Q2 / self.v1
+        self.k13 = self.Q3 / self.v1
+        self.k21 = (self.k12 * self.v1) / self.v2
+        self.k31 = (self.k13 * self.v1) / self.v3
+
+        self.keo = 0
+
+        Propofol.setup(self)
+
+class Paedfusor(Propofol):
+    """Paedfusor paediatric model
+    Intended age range 1-12
+
+    Units:
+    Weight (kg)
+
+    Reference:
+    Absalom, A, Kenny, G
+    BJA: British Journal of Anaesthesia, Volume 95, Issue 1, 1 July 2005, Pages 110, 
+    https://doi.org/10.1093/bja/aei567
+    """
+
+    def __init__(self, weight: float, age: float):
+
+        if age < 1:
+            warnings.warn("age below that for which model is intended")
+        elif age > 12:
+            warnings.warn("Warning: Patient older than intended for model")
+
+        self.v1 = 0.46 * weight
+        self.v2 = 0.95 * weight
+        self.v3 = 5.85 * weight
+
+        self.k10 = 0.1527 * (weight ** (-0.3))
+        self.k12 = 0.114
+        self.k13 = 0.042
+        self.k21 = 0.055
+        self.k31 = 0.0033
+
+        self.keo = 0
+
+        Propofol.setup(self)
