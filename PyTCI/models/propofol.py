@@ -105,7 +105,7 @@ class Kataria(Propofol):
     Intended age range 3-11
 
     Units:
-    Age
+    Age (years)
     Weight (kg)"""
 
     def __init__(self, weight: float, age: float):
@@ -139,6 +139,7 @@ class Paedfusor(Propofol):
 
     Units:
     Weight (kg)
+    Age (years)
 
     Reference:
     Absalom, A, Kenny, G
@@ -166,3 +167,34 @@ class Paedfusor(Propofol):
         self.keo = 0
 
         Propofol.setup(self)
+
+class Eleveld(Propofol):
+    """Eleveld universal model
+
+    Units:
+    Height (cm)
+    Weight (Kg)
+    Age (years)
+
+    Special methods for this model
+    .arterial()
+    Switches from venous(default) to arterial targerting
+
+    .with_opiates()
+    models co-administration with opiates
+
+    Reference:
+
+    """
+    def __init__(self, age: int, weight: float, height: int, sex: str):
+        Propofol.setup(self)
+
+    @classmethod
+    def arterial():
+        """ switches the following parameters to target arterial concentrations"""
+        pass
+        
+    @classmethod
+    def with_opiates():
+        """ switches the following parameters """
+        pass
