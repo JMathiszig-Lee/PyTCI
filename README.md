@@ -72,21 +72,16 @@ You can define your own models and use the same functions to see how yours perfo
 ```python
 class MyNewModel(Propofol):
      def __init__(self, desired, arguments):
-        # Initial concentration is zero in all components
-        self.x1 = 0.0
-        self.x2 = 0.0
-        self.x3 = 0.0
-        self.xeo = 0.0
-
         #my custom code to generate volumes and constants
+        self.v1 = a_constant * weight
+        self.v2 = a_constant * lean_body_mass
+        etc... etc...
 
+        #if you want to work with clearances rate constants must be generated
+        Propofol.from_clearances(self)
 
-        # divide by 60 as we will be working in seconds
-        self.k10 /= 60
-        self.k12 /= 60
-        self.k13 /= 60
-        self.k21 /= 60
-        self.k31 /= 60
-        self.keo /= 60
+        #finally set up model 
+        Propofol.setup(self)
+
 ```
 
