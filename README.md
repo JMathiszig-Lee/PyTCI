@@ -35,15 +35,18 @@ example:
 >>> leanbodymass.hume66(180, 60 'm')
 51.2
 ```
-
-**Propofol models:**
+**Models:**
+**Propofol**
 * Schnider
 * Marsh
 * Kataria
 * Paedfusor
 
-**Remifentanil models**
+**Remifentanil**
 * Minto
+
+**Alfentanil**
+*Maitre
 
 example:
 ```python
@@ -78,10 +81,10 @@ class MyNewModel(Propofol):
         etc... etc...
 
         #if you want to work with clearances rate constants must be generated
-        Propofol.from_clearances(self)
+        self.from_clearances(self)
 
         #finally set up model 
-        Propofol.setup(self)
+        self.setup(self)
 
 ```
 
