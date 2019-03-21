@@ -1,4 +1,4 @@
-class Three :
+class Three:
     """ Base 3 compartment model"""
 
     def setup(self):
@@ -68,20 +68,15 @@ class Three :
             self.x3 = self.x3 + (x1k13 - x3k31)
 
             self.xeo = self.xeo + (xk1e - xke1)
-        
+
         for _ in range(time_seconds):
             one_second(self)
 
-    def effect_bolus(self, target:float):
+    def effect_bolus(self, target: float):
         """ determines size of bolus needed over 10 seconds to achieve target at ttpe """
-        
-        #store concentrations so we can reset after search
-        old_conc = {
-            "ox1": self.x1,
-            "ox2": self.x2,
-            "ox3": self.x3,
-            "oxeo": self.xeo,
-        }
+
+        # store concentrations so we can reset after search
+        old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
 
         ttpe = 90
         bolus_seconds = 10
@@ -99,8 +94,8 @@ class Three :
             bolus += step
             bolus = round(bolus, 2)
 
-            print (effect_error, bolus, step, self.xeo)
-            #reset concentrations
+            print(effect_error, bolus, step, self.xeo)
+            # reset concentrations
             self.x1 = old_conc["ox1"]
             self.x2 = old_conc["ox2"]
             self.x3 = old_conc["ox3"]

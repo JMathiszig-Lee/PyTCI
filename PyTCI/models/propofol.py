@@ -32,6 +32,10 @@ class Propofol(Three):
             # reset concentrations
             reset_concs(old_conc)
 
+        bolus_needed = mgpersec * 10
+
+        return bolus_needed
+
     def reset_concs(self, old_conc):
         """ resets concentrations using python dictionary"""
         self.x1 = old_conc["ox1"]
@@ -39,7 +43,7 @@ class Propofol(Three):
         self.x3 = old_conc["ox3"]
         self.xeo = old_conc["oxeo"]
 
-    def plasma_infusion(target: float, time: int):
+    def plasma_infusion(self, target: float, time: int):
         """ returns list of infusion rates to maintain desired plasma concentration
         inputs:
         target: desired plasma concentration in ug/min
@@ -47,7 +51,8 @@ class Propofol(Three):
 
         returns:
         list of infusion rates over 10 seconds"""
-        
+
+        old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
         sections = round(time / 10)
 
         mgpersec = 3
@@ -55,10 +60,30 @@ class Propofol(Three):
             self.give_drug(mgpersec)
             self.wait_time(1)
 
-        # reset
-        # for _ in range(sections):
+        first_cp = self.x1
+        
+        self.reset_concs(old_conc)
 
-    pass
+        mgpersec = 12
+        for _ in range(10):
+            self.give_drug(mgpersec)
+            self.wait_time(1)
+
+        second_cp = self.x1
+        self.reset_concs(old_conc)
+
+        gradient = (second_cp - first_cp) / 9
+        offset = first_cp - (gradient * 3)
+
+        final_mgpersec = target / gradient - offset
+
+        for _ in range(10):
+            self.give_drug(final_mgpersec)
+            self.wait_time(1)
+        print(3, first_cp)
+        print(12, second_cp)
+        print(final_mgpersec, self.x1)
+        self.reset_concs(old_conc)
 
 
 class Schnider(Propofol):
