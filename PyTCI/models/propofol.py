@@ -5,9 +5,60 @@ from .base import Three
 
 class Propofol(Three):
     """ Base Class for Propofol 3 compartment model """
-    
+
+    def effect_bolus(self, target: float):
+        """ determines size of bolus needed over 10 seconds to achieve target at ttpe """
+
+        # store concentrations so we can reset after search
+        old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
+
+        ttpe = 90
+        bolus_seconds = 10
+        bolus = 10
+
+        effect_error = 100
+        while not -5 < effect_error < 5:
+            mgpersec = bolus / bolus_seconds
+            for _ in range(10):
+                self.give_drug(mgpersec)
+                self.wait_time(1)
+            self.wait_time(80)
+            effect_error = ((self.xeo - target) / target) * 100
+            step = effect_error / -1
+            bolus += step
+            bolus = round(bolus, 2)
+
+            print(effect_error, bolus, step, self.xeo)
+            # reset concentrations
+            reset_concs(old_conc)
+
+    def reset_concs(self, old_conc):
+        """ resets concentrations using python dictionary"""
+        self.x1 = old_conc["ox1"]
+        self.x2 = old_conc["ox2"]
+        self.x3 = old_conc["ox3"]
+        self.xeo = old_conc["oxeo"]
+
+    def plasma_infusion(target: float, time: int):
+        """ returns list of infusion rates to maintain desired plasma concentration
+        inputs:
+        target: desired plasma concentration in ug/min
+        time: infusion duration in seconds
+
+        returns:
+        list of infusion rates over 10 seconds"""
+        
+        sections = round(time / 10)
+
+        mgpersec = 3
+        for _ in range(10):
+            self.give_drug(mgpersec)
+            self.wait_time(1)
+
+        # reset
+        # for _ in range(sections):
+
     pass
-    
 
 
 class Schnider(Propofol):

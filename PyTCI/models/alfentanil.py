@@ -32,6 +32,5 @@ class Maitre(Alfentanil):
         self.v2 = self.v1 * (self.k12 / self.k21)
         self.v3 = self.v1 * (self.k13 / self.k31)
 
-        # blank keo for now
-        self.keo = 0
+        self.keo = 0.77
         self.setup()
