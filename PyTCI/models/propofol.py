@@ -54,36 +54,46 @@ class Propofol(Three):
 
         old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
         sections = round(time / 10)
+        pump_instructions = []
 
-        mgpersec = 3
-        for _ in range(10):
-            self.give_drug(mgpersec)
-            self.wait_time(1)
+        def tenseconds(mgpersec: float):
+            """ gives set amount of drug every second for 10 seconds """
+            for _ in range(10):
+                self.give_drug(mgpersec)
+                self.wait_time(1)
 
-        first_cp = self.x1
-        
-        self.reset_concs(old_conc)
+            return self.x1
 
-        mgpersec = 12
-        for _ in range(10):
-            self.give_drug(mgpersec)
-            self.wait_time(1)
+        for _ in range(sections):
 
-        second_cp = self.x1
-        self.reset_concs(old_conc)
+            first_cp = tenseconds(3)
 
-        gradient = (second_cp - first_cp) / 9
-        offset = first_cp - (gradient * 3)
+            self.reset_concs(old_conc)
 
-        final_mgpersec = target / gradient - offset
+            second_cp = tenseconds(12)
 
-        for _ in range(10):
-            self.give_drug(final_mgpersec)
-            self.wait_time(1)
-        print(3, first_cp)
-        print(12, second_cp)
-        print(final_mgpersec, self.x1)
-        self.reset_concs(old_conc)
+            self.reset_concs(old_conc)
+
+            gradient = (second_cp - first_cp) / 9
+            offset = first_cp - (gradient * 3)
+            print("gradient:", gradient)
+            print("offset:", offset)
+            final_mgpersec = target / gradient - offset
+            section_cp = tenseconds(final_mgpersec)
+            old_conc = {
+                "ox1": self.x1,
+                "ox2": self.x2,
+                "ox3": self.x3,
+                "oxeo": self.xeo,
+            }
+
+            print(" ")
+            pump_instructions.append((final_mgpersec, section_cp))
+            print(3, first_cp)
+            print(12, second_cp)
+            print(final_mgpersec, section_cp)
+
+        print(pump_instructions)
 
 
 class Schnider(Propofol):
@@ -181,7 +191,7 @@ class Paedfusor(Propofol):
 
     Reference:
     Absalom, A, Kenny, G
-    BJA: British Journal of Anaesthesia, Volume 95, Issue 1, 1 July 2005, Pages 110, 
+    BJA: British Journal of Anaesthesia, Volume 95, Issue 1, 1 July 2005, Pages 110,
     https://doi.org/10.1093/bja/aei567
     """
 
