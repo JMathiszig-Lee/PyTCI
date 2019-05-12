@@ -1,4 +1,4 @@
-class Three :
+class Three:
     """ Base 3 compartment model"""
 
     def setup(self):
@@ -68,6 +68,6 @@ class Three :
             self.x3 = self.x3 + (x1k13 - x3k31)
 
             self.xeo = self.xeo + (xk1e - xke1)
-        
+
         for _ in range(time_seconds):
             one_second(self)

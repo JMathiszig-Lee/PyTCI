@@ -1,10 +1,12 @@
 from PyTCI.weights import leanbodymass
 from .base import Three
 
+
 class Remifentanil(Three):
     """ Base Class for remifentanil models """
 
     pass
+
 
 class Minto(Remifentanil):
     def __init__(self, age, weight, height, sex):
@@ -26,4 +28,3 @@ class Minto(Remifentanil):
         self.keo = 0.595 - 0.007 * (age - 40)
 
         Remifentanil.setup(self)
-        

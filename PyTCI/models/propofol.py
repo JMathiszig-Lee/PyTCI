@@ -5,9 +5,8 @@ from .base import Three
 
 class Propofol(Three):
     """ Base Class for Propofol 3 compartment model """
-    
+
     pass
-    
 
 
 class Schnider(Propofol):
