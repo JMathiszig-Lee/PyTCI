@@ -12,7 +12,7 @@ install:
   - pipenv install --dev --skip-lock
 
 script:
-  - pytest --cov=PyTCI
+  - pipenv run pytest --cov=PyTCI
 
 after_success:
   - coveralls
