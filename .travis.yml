@@ -8,6 +8,7 @@ env:
     - PIPENV_IGNORE_VIRTUALENVS=1
 install:
   - pip install pipenv
+  - pipenv sync
   - pip install python-coveralls
   - pipenv install --dev
 
