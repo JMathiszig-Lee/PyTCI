@@ -59,3 +59,6 @@ def test_adjustedbodyweight():
 
     with pytest.raises(ValueError):
         leanbodymass.adjustedbodyweight(180, 60, "g")
+
+def test_bmi():
+    assert leanbodymass.bmi(180, 80) == 24.7

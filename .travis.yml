@@ -1,20 +1,18 @@
+dist: xenial   # required for Python >= 3.7
 language: python
 python:
-  - "3.6"
-
-matrix:
-  include:
-    - python: 3.7
-      dist: xenial
-      sudo: true
-      
+  - "3.7"
+env:
+  global:
+    - PIPENV_VENV_IN_PROJECT=1
+    - PIPENV_IGNORE_VIRTUALENVS=1
 install:
-  - 'pip install pipenv'
-  - 'pip install python-coveralls'
-  - 'pipenv install --dev'
+  - pip install pipenv
+  - pip install python-coveralls
+  - pipenv install --dev --skip-lock
 
 script:
-  - pytest --cov=PyTCI
+  - pipenv run pytest --cov=PyTCI
 
 after_success:
   - coveralls
