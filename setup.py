@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="PyTCI",
-    version="0.1",
+    version="0.3",
     author="Jakob Mathiszig-Lee",
     author_email="jakob@mathisziglee.co.uk",
     description="A package for target controlled infusions",
