@@ -21,7 +21,7 @@ class Propofol(Three):
             mgpersec = bolus / bolus_seconds
 
             self.tenseconds(mgpersec)
-            self.wait_time(ttpe-10)
+            self.wait_time(ttpe - 10)
 
             effect_error = ((self.xeo - target) / target) * 100
             step = effect_error / -1
@@ -32,7 +32,7 @@ class Propofol(Three):
 
         bolus_needed = mgpersec * 10
 
-        return round(bolus_needed,2)
+        return round(bolus_needed, 2)
 
     def reset_concs(self, old_conc):
         """ resets concentrations using python dictionary"""
@@ -62,8 +62,6 @@ class Propofol(Three):
         sections = round(time / 10)
         pump_instructions = []
 
-        
-
         for _ in range(sections):
 
             first_cp = self.tenseconds(3)
@@ -79,7 +77,7 @@ class Propofol(Three):
 
             final_mgpersec = (target - offset) / gradient
             if final_mgpersec < 0:
-                #do not allow for a negative drug dose
+                # do not allow for a negative drug dose
                 final_mgpersec = 0
 
             section_cp = self.tenseconds(final_mgpersec)
@@ -87,13 +85,12 @@ class Propofol(Three):
                 "ox1": self.x1,
                 "ox2": self.x2,
                 "ox3": self.x3,
-                "oxeo": self.xeo,   
+                "oxeo": self.xeo,
             }
 
-            
             pump_instructions.append((final_mgpersec, section_cp))
-            
-        return(pump_instructions)
+
+        return pump_instructions
 
 
 class Schnider(Propofol):
