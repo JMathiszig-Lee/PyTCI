@@ -13,4 +13,4 @@ def test_reset():
 def test_effect():
     """test effect site targetting bolus """
     testpatient = propofol.Schnider(40, 70, 190, 'm')
-    assert testpatient.effect_bolus(6) == 96.3
+    assert testpatient.effect_bolus(6) == 95.6
