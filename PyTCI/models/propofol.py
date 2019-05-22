@@ -76,10 +76,12 @@ class Propofol(Three):
 
             gradient = (second_cp - first_cp) / 9
             offset = first_cp - (gradient * 3)
-            print("gradient:", gradient)
-            print("offset:", offset)
-            #final_mgpersec = (target / gradient) - offset
+
             final_mgpersec = (target - offset) / gradient
+            if final_mgpersec < 0:
+                #do not allow for a negative drug dose
+                final_mgpersec = 0
+
             section_cp = tenseconds(final_mgpersec)
             old_conc = {
                 "ox1": self.x1,
@@ -88,13 +90,10 @@ class Propofol(Three):
                 "oxeo": self.xeo,   
             }
 
-            print(" ")
+            
             pump_instructions.append((final_mgpersec, section_cp))
-            print(3, first_cp)
-            print(12, second_cp)
-            print(final_mgpersec, section_cp)
-
-        print(pump_instructions)
+            
+        return(pump_instructions)
 
 
 class Schnider(Propofol):
