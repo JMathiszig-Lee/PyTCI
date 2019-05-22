@@ -35,7 +35,7 @@ example:
 >>> leanbodymass.hume66(180, 60 'm')
 51.2
 ```
-**Models:**
+# Models:
 **Propofol**
 * Schnider
 * Marsh
@@ -85,7 +85,7 @@ Effect bolus returns the bolus (in mg) needed over 10 seconds to achieve the des
 the function uses a simple search to find a dose that gets within 2% of the desired concentration 
 
 
-Plasma_infusion takes desired plasma concentration(ug/ml) and desired time (seconds) and returns a python list of the required infusions rates every ten seconds in the format [(mg per second)],(resulting plasma concentration)
+Plasma_infusion takes desired plasma concentration(ug/ml) and desired time (seconds) and returns a python list of the required infusions rates every ten seconds in the format [(mg per second)],(resulting plasma concentration)]
 ```python
 >>> patient.plasma_infusion(3, 60)
 [(1.4015583251674446, 2.999999999999999), (0.20276642700021327, 2.9999999999999996), (0.1897043393887194, 2.9999999999999987), (0.1792243459524349, 3.000000000000001), (0.17081505252896076, 3.0000000000000013), (0.16406634920010446, 3.000000000000002)]
