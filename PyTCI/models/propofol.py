@@ -6,6 +6,13 @@ from .base import Three
 class Propofol(Three):
     """ Base Class for Propofol 3 compartment model """
 
+    def reset_concs(self, old_conc):
+        """ resets concentrations using python dictionary"""
+        self.x1 = old_conc["ox1"]
+        self.x2 = old_conc["ox2"]
+        self.x3 = old_conc["ox3"]
+        self.xeo = old_conc["oxeo"]
+
     def effect_bolus(self, target: float):
         """ determines size of bolus needed over 10 seconds to achieve target at ttpe """
 
@@ -24,22 +31,14 @@ class Propofol(Three):
             self.wait_time(ttpe - 10)
 
             effect_error = ((self.xeo - target) / target) * 100
-            step = effect_error / -1
+            step = effect_error / -5
             bolus += step
+            bolus = round(bolus, 2)
 
             # reset concentrations
             self.reset_concs(old_conc)
 
-        bolus_needed = mgpersec * 10
-
-        return round(bolus_needed, 2)
-
-    def reset_concs(self, old_conc):
-        """ resets concentrations using python dictionary"""
-        self.x1 = old_conc["ox1"]
-        self.x2 = old_conc["ox2"]
-        self.x3 = old_conc["ox3"]
-        self.xeo = old_conc["oxeo"]
+        return bolus
 
     def tenseconds(self, mgpersec: float):
         """ gives set amount of drug every second for 10 seconds """
