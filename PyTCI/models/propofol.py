@@ -17,24 +17,22 @@ class Propofol(Three):
         bolus = 10
 
         effect_error = 100
-        while not -5 < effect_error < 5:
+        while not -2 < effect_error < 2:
             mgpersec = bolus / bolus_seconds
-            for _ in range(10):
-                self.give_drug(mgpersec)
-                self.wait_time(1)
-            self.wait_time(80)
+
+            self.tenseconds(mgpersec)
+            self.wait_time(ttpe-10)
+
             effect_error = ((self.xeo - target) / target) * 100
             step = effect_error / -1
             bolus += step
-            bolus = round(bolus, 2)
 
-            print(effect_error, bolus, step, self.xeo)
             # reset concentrations
-            reset_concs(old_conc)
+            self.reset_concs(old_conc)
 
         bolus_needed = mgpersec * 10
 
-        return bolus_needed
+        return round(bolus_needed,2)
 
     def reset_concs(self, old_conc):
         """ resets concentrations using python dictionary"""
@@ -42,6 +40,14 @@ class Propofol(Three):
         self.x2 = old_conc["ox2"]
         self.x3 = old_conc["ox3"]
         self.xeo = old_conc["oxeo"]
+
+    def tenseconds(self, mgpersec: float):
+        """ gives set amount of drug every second for 10 seconds """
+        for _ in range(10):
+            self.give_drug(mgpersec)
+            self.wait_time(1)
+
+        return self.x1
 
     def plasma_infusion(self, target: float, time: int):
         """ returns list of infusion rates to maintain desired plasma concentration
@@ -56,21 +62,15 @@ class Propofol(Three):
         sections = round(time / 10)
         pump_instructions = []
 
-        def tenseconds(mgpersec: float):
-            """ gives set amount of drug every second for 10 seconds """
-            for _ in range(10):
-                self.give_drug(mgpersec)
-                self.wait_time(1)
-
-            return self.x1
+        
 
         for _ in range(sections):
 
-            first_cp = tenseconds(3)
+            first_cp = self.tenseconds(3)
 
             self.reset_concs(old_conc)
 
-            second_cp = tenseconds(12)
+            second_cp = self.tenseconds(12)
 
             self.reset_concs(old_conc)
 
@@ -82,7 +82,7 @@ class Propofol(Three):
                 #do not allow for a negative drug dose
                 final_mgpersec = 0
 
-            section_cp = tenseconds(final_mgpersec)
+            section_cp = self.tenseconds(final_mgpersec)
             old_conc = {
                 "ox1": self.x1,
                 "ox2": self.x2,
