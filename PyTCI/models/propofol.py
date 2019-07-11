@@ -78,14 +78,14 @@ class Propofol(Three):
             offset = first_cp - (gradient * 3)
             print("gradient:", gradient)
             print("offset:", offset)
-            #final_mgpersec = (target / gradient) - offset
+            # final_mgpersec = (target / gradient) - offset
             final_mgpersec = (target - offset) / gradient
             section_cp = tenseconds(final_mgpersec)
             old_conc = {
                 "ox1": self.x1,
                 "ox2": self.x2,
                 "ox3": self.x3,
-                "oxeo": self.xeo,   
+                "oxeo": self.xeo,
             }
 
             print(" ")
