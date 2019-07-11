@@ -6,6 +6,13 @@ from .base import Three
 class Propofol(Three):
     """ Base Class for Propofol 3 compartment model """
 
+    def reset_concs(self, old_conc):
+        """ resets concentrations using python dictionary"""
+        self.x1 = old_conc["ox1"]
+        self.x2 = old_conc["ox2"]
+        self.x3 = old_conc["ox3"]
+        self.xeo = old_conc["oxeo"]
+
     def effect_bolus(self, target: float):
         """ determines size of bolus needed over 10 seconds to achieve target at ttpe """
 
@@ -17,70 +24,70 @@ class Propofol(Three):
         bolus = 10
 
         effect_error = 100
-        while not -5 < effect_error < 5:
+        while not -1 < effect_error < 1:
             mgpersec = bolus / bolus_seconds
-            for _ in range(10):
-                self.give_drug(mgpersec)
-                self.wait_time(1)
-            self.wait_time(80)
+
+            self.tenseconds(mgpersec)
+            self.wait_time(ttpe - 10)
+
             effect_error = ((self.xeo - target) / target) * 100
-            step = effect_error / -1
+
+            step = effect_error / -5
             bolus += step
-            bolus = round(bolus, 2)
 
-            print(effect_error, bolus, step, self.xeo)
             # reset concentrations
-            reset_concs(old_conc)
+            self.reset_concs(old_conc)
 
-        bolus_needed = mgpersec * 10
+        return round(mgpersec * 10, 2)
 
-        return bolus_needed
+    def tenseconds(self, mgpersec: float):
+        """ gives set amount of drug every second for 10 seconds """
+        for _ in range(10):
+            self.give_drug(mgpersec)
+            self.wait_time(1)
 
-    def reset_concs(self, old_conc):
-        """ resets concentrations using python dictionary"""
-        self.x1 = old_conc["ox1"]
-        self.x2 = old_conc["ox2"]
-        self.x3 = old_conc["ox3"]
-        self.xeo = old_conc["oxeo"]
+        return self.x1
 
-    def plasma_infusion(self, target: float, time: int):
+    def giveoverseconds(self, mgpersec: float, secs: float):
+        """ gives set amount of drug every second for user defined period"""
+        for _ in range(secs):
+            self.give_drug(mgpersec)
+            self.wait_time(1)
+
+        return self.x1
+
+    def plasma_infusion(self, target: float, time: int, period: int = 10):
         """ returns list of infusion rates to maintain desired plasma concentration
         inputs:
         target: desired plasma concentration in ug/min
         time: infusion duration in seconds
+        period: time in seconds for each chunk of pump instructions, defaults to 10
 
         returns:
-        list of infusion rates over 10 seconds"""
+        list of infusion rates in mg per second over period defined by user (or 10 if default)"""
 
         old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
-        sections = round(time / 10)
+        sections = round(time / period)
         pump_instructions = []
-
-        def tenseconds(mgpersec: float):
-            """ gives set amount of drug every second for 10 seconds """
-            for _ in range(10):
-                self.give_drug(mgpersec)
-                self.wait_time(1)
-
-            return self.x1
 
         for _ in range(sections):
 
-            first_cp = tenseconds(3)
+            first_cp = self.giveoverseconds(3, period)
 
             self.reset_concs(old_conc)
 
-            second_cp = tenseconds(12)
+            second_cp = self.giveoverseconds(12, period)
 
             self.reset_concs(old_conc)
 
             gradient = (second_cp - first_cp) / 9
             offset = first_cp - (gradient * 3)
-            print("gradient:", gradient)
-            print("offset:", offset)
-            # final_mgpersec = (target / gradient) - offset
             final_mgpersec = (target - offset) / gradient
-            section_cp = tenseconds(final_mgpersec)
+            if final_mgpersec < 0:
+                # do not allow for a negative drug dose
+                final_mgpersec = 0
+
+            section_cp = self.tenseconds(final_mgpersec)
             old_conc = {
                 "ox1": self.x1,
                 "ox2": self.x2,
@@ -88,13 +95,9 @@ class Propofol(Three):
                 "oxeo": self.xeo,
             }
 
-            print(" ")
-            pump_instructions.append((final_mgpersec, section_cp))
-            print(3, first_cp)
-            print(12, second_cp)
-            print(final_mgpersec, section_cp)
+            pump_instructions.append(final_mgpersec)
 
-        print(pump_instructions)
+        return pump_instructions
 
 
 class Schnider(Propofol):
