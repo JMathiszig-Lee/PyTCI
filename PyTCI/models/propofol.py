@@ -96,7 +96,7 @@ class Propofol(Three):
                 "oxeo": self.xeo,
             }
 
-            pump_instructions.append((final_mgpersec, section_cp))
+            pump_instructions.append(final_mgpersec)
 
         return pump_instructions
 
