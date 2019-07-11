@@ -48,26 +48,35 @@ class Propofol(Three):
 
         return self.x1
 
-    def plasma_infusion(self, target: float, time: int):
+    def giveoverseconds(self, mgpersec: float, secs: float):
+        """ gives set amount of drug every second for user defined period"""
+        for _ in range(secs):
+            self.give_drug(mgpersec)
+            self.wait_time(1)
+
+        return self.x1
+
+    def plasma_infusion(self, target: float, time: int, period: int = 10):
         """ returns list of infusion rates to maintain desired plasma concentration
         inputs:
         target: desired plasma concentration in ug/min
         time: infusion duration in seconds
+        period: time in seconds for each chunk of pump instructions, defaults to 10
 
         returns:
-        list of infusion rates over 10 seconds"""
+        list of infusion rates in mg per second over period defined by user (or 10 if default)"""
 
         old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
-        sections = round(time / 10)
+        sections = round(time / period)
         pump_instructions = []
 
         for _ in range(sections):
 
-            first_cp = self.tenseconds(3)
+            first_cp = self.giveoverseconds(3, period)
 
             self.reset_concs(old_conc)
 
-            second_cp = self.tenseconds(12)
+            second_cp = self.giveoverseconds(12, period)
 
             self.reset_concs(old_conc)
 
