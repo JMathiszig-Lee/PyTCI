@@ -85,11 +85,14 @@ Effect bolus returns the bolus (in mg) needed over 10 seconds to achieve the des
 the function uses a simple search to find a dose that gets within 2% of the desired concentration 
 
 
-Plasma_infusion takes desired plasma concentration(ug/ml) and desired time (seconds) and returns a python list of the required infusions rates every ten seconds in the format [(mg per second)],(resulting plasma concentration)]
+Plasma_infusion takes desired plasma concentration(ug/ml), desired total time (seconds) and the time period for each segment (seconds) and returns a python list of the required infusions rates from every segment witin the total time specified in mg/sec
 ```python
->>> patient.plasma_infusion(3, 60)
-[(1.4015583251674446, 2.999999999999999), (0.20276642700021327, 2.9999999999999996), (0.1897043393887194, 2.9999999999999987), (0.1792243459524349, 3.000000000000001), (0.17081505252896076, 3.0000000000000013), (0.16406634920010446, 3.000000000000002)]
->>> 
+>>> pt = propofol.Marsh(70)
+>>> pt.plasma_infusion(2, 60)
+[3.27269899102373, 0.1453355022895698, 0.14478000490919285, 0.14422948797801816, 0.1436839059972244, 0.143143213884116]
+>>> pt.plasma_infusion(2, 60, 30)
+[0.1420619352906052, 0.1417017659270992]
+
 ```
 
 
