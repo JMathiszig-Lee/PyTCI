@@ -15,3 +15,15 @@ def test_hannivoort():
     assert testpatient.Q1 == 0.686
     assert testpatient.Q2 == 2.98
     assert testpatient.Q3 == 0.602
+
+def test_dyck():
+
+    testpatient = dexmedetomidine.Dyck(170)
+
+    assert testpatient.v1 == 7.99
+    assert testpatient.v2 == 13.8
+    assert testpatient.v3 == 187
+
+    assert testpatient.Q1 == 0.4167
+    assert testpatient.Q2 == 2.26
+    assert testpatient.Q3 == 1.99
