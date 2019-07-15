@@ -62,11 +62,11 @@ class Propofol(Three):
         target: desired plasma concentration in ug/min
         time: infusion duration in seconds
         period: time in seconds for each chunk of pump instructions, defaults to 10
-
         returns:
         list of infusion rates in mg per second over period defined by user (or 10 if default)"""
 
         old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
+        og_conc = old_conc
         sections = round(time / period)
         pump_instructions = []
 
@@ -87,7 +87,7 @@ class Propofol(Three):
                 # do not allow for a negative drug dose
                 final_mgpersec = 0
 
-            section_cp = self.tenseconds(final_mgpersec)
+            self.tenseconds(final_mgpersec)
             old_conc = {
                 "ox1": self.x1,
                 "ox2": self.x2,
@@ -97,6 +97,7 @@ class Propofol(Three):
 
             pump_instructions.append(final_mgpersec)
 
+        self.reset_concs(og_conc)
         return pump_instructions
 
 
@@ -135,10 +136,8 @@ class Schnider(Propofol):
 
 class Marsh(Propofol):
     """ Marsh 3 compartment Propofol Pk Model
-
     Units required:
     weight (kg)
-
     Returns:
     """
 
@@ -162,7 +161,6 @@ class Marsh(Propofol):
 class Kataria(Propofol):
     """Kataria paediatric model
     Intended age range 3-11
-
     Units:
     Age
     Weight (kg)"""
@@ -189,10 +187,8 @@ class Kataria(Propofol):
 class Paedfusor(Propofol):
     """Paedfusor paediatric model
     Intended age range 1-12
-
     Units:
     Weight (kg)
-
     Reference:
     Absalom, A, Kenny, G
     BJA: British Journal of Anaesthesia, Volume 95, Issue 1, 1 July 2005, Pages 110,
@@ -217,5 +213,6 @@ class Paedfusor(Propofol):
         self.k31 = 0.0033
 
         self.keo = 0
+
 
         Propofol.setup(self)

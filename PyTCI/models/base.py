@@ -71,3 +71,11 @@ class Three:
 
         for _ in range(time_seconds):
             one_second(self)
+
+    def zero_compartments(self):
+        """ returns all compartments back to 0 """
+
+        self.x1 = 0
+        self.x2 = 0
+        self.x3 = 0
+        self.xeo = 0
