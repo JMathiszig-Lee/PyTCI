@@ -1,13 +1,15 @@
 import math
 from PyTCI.models.base import Three
 
+
 class Dexmed(Three):
     """ base class for demedetomidine"""
+
     pass
 
-class Hannivoort(Dexmed):
 
-    def __init__(self, weight:int):
+class Hannivoort(Dexmed):
+    def __init__(self, weight: int):
         """ 3 compartment dexmedetomidine Pk model
 
         Units:
@@ -18,15 +20,15 @@ class Hannivoort(Dexmed):
         Development of an Optimized Pharmacokinetic Model of Dexmedetomidine Using Target-controlled Infusion in Healthy Volunteers
         Anesthesiology 8 2015, Vol.123, 357-367. 
         doi:10.1097/ALN.0000000000000740 
-        """ 
+        """
 
-        self.v1 = 1.78 * (weight/70) 
-        self.v2 = 30.3 * (weight/70)
-        self.v3 = 52.0 * (weight/70) 
+        self.v1 = 1.78 * (weight / 70)
+        self.v2 = 30.3 * (weight / 70)
+        self.v3 = 52.0 * (weight / 70)
 
-        self.Q1 = 0.686 * ((weight/70))**0.75
-        self.Q2 = 2.98 * (self.v2/30.3)**0.75
-        self.Q3 = 0.602 * (self.v3/52.0)**0.75
+        self.Q1 = 0.686 * ((weight / 70)) ** 0.75
+        self.Q2 = 2.98 * (self.v2 / 30.3) ** 0.75
+        self.Q3 = 0.602 * (self.v3 / 52.0) ** 0.75
 
         self.from_clearances()
 
@@ -36,7 +38,7 @@ class Hannivoort(Dexmed):
 
 
 class Dyck(Dexmed):
-    def __init__(self, height:int):
+    def __init__(self, height: int):
         """
 
         Units:
@@ -53,7 +55,7 @@ class Dyck(Dexmed):
         self.v2 = 13.8
         self.v3 = 187
 
-        self.Q1 = round((0.00791*height)-0.928,4)
+        self.Q1 = round((0.00791 * height) - 0.928, 4)
         self.Q2 = 2.26
         self.Q3 = 1.99
 
