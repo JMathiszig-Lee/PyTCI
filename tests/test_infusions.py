@@ -1,3 +1,4 @@
+import pytest
 from PyTCI.models import propofol
 
 def test_reset():
@@ -14,6 +15,11 @@ def test_effect():
     """test effect site targetting bolus """
     testpatient = propofol.Schnider(40, 70, 190, 'm')
     assert testpatient.effect_bolus(6) == 95.6
+
+    #check function doesnt allow for models with keo of 0
+    with pytest.raises(AssertionError, match=r".* keo *."):
+        child = propofol.Kataria(20, 6)
+        child.effect_bolus(4)
 
 def test_plasma_infusion():
     """ basic test for plasma infusion """

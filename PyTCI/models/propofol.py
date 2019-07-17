@@ -16,6 +16,9 @@ class Propofol(Three):
     def effect_bolus(self, target: float):
         """ determines size of bolus needed over 10 seconds to achieve target at ttpe """
 
+        #check if keo = 0 (model has no known keo) and return error if so 
+        assert (self.keo != 0), "Model has no keo and does not support effect site targetting"
+        
         # store concentrations so we can reset after search
         old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
 
