@@ -83,6 +83,8 @@ class Propofol(Three):
             gradient = (second_cp - first_cp) / 9
             offset = first_cp - (gradient * 3)
             final_mgpersec = (target - offset) / gradient
+            self.tenseconds(final_mgpersec)
+            
             if final_mgpersec < 0:
                 # do not allow for a negative drug dose
                 final_mgpersec = 0
