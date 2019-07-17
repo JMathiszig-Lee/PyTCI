@@ -48,6 +48,10 @@ example:
 **Alfentanil**
 * Maitre
 
+**Dexmedetomidine**
+* Hannivoort
+* Dyck
+ 
 example:
 ```python
 >>> from PyTCI.models import propofol
