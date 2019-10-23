@@ -1,6 +1,6 @@
 import warnings
 from ..weights import leanbodymass
-from .base import Three
+from .base import Three, MatrixThree
 
 
 class Propofol(Three):
@@ -158,6 +158,31 @@ class Marsh(Propofol):
         self.keo = 0.26
 
         Propofol.setup(self)
+
+class MarshMatrix(MatrixThree):
+    """ Marsh 3 compartment Propofol Pk Model
+
+    Units required:
+    weight (kg)
+
+    Returns:
+    """
+
+    def __init__(self, weight: float):
+
+        self.v1 = 0.228 * weight
+        self.v2 = 0.463 * weight
+        self.v3 = 2.893 * weight
+
+        self.k10 = 0.119
+        self.k12 = 0.112
+        self.k13 = 0.042
+        self.k21 = 0.055
+        self.k31 = 0.0031
+
+        self.keo = 0.26
+
+        MatrixThree.setup(self)
 
 
 class Kataria(Propofol):
