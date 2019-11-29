@@ -72,92 +72,136 @@ class Three:
         for _ in range(time_seconds):
             one_second(self)
 
-import numpy
+    def reset_concs(self, old_conc):
+        """ resets concentrations using python dictionary"""
+        self.x1 = old_conc["ox1"]
+        self.x2 = old_conc["ox2"]
+        self.x3 = old_conc["ox3"]
+        self.xeo = old_conc["oxeo"]
 
-class MatrixThree:
-    """ Base 3 compartment model"""
-
-    def setup(self):
-
-        # Initial concentration is zero in all components
-        self.x1 = 0.0
-        self.x2 = 0.0
-        self.x3 = 0.0
-        self.xeo = 0.0
-
-        # declare variables so the linting doesnt get upset
-        self.v1: float
-        self.v2: float
-        self.v3: float
-        self.Q1: float
-        self.Q2: float
-        self.Q3: float
-        self.k10: float
-        self.k12: float
-        self.k13: float
-        self.k21: float
-        self.k31: float
-        self.keo: float
-
-        #setup the arrays for matrix stuff
-        self.contents = numpy.array([self.x1, self.x2, self.x3, self.xeo])
-        self.constants = numpy.array(
-            [[self.k10, self.k12, self.k13, self.keo],
-            [0, self.k21, 0, 0],
-            [0, 0, self.k31, 0],
-            [0, 0, 0, self.keo]])
-
-        # divide by 60 as we will be working in seconds
-        self.constants /= 60
-
-    def from_clearances(self):
-        """
-        Converts intercompartment clearances into rate constants
-        Needed as we currently use them for the maths
-
-        source http://www.pfim.biostat.fr/PFIM_PKPD_library.pdf page 8
-        """
-        self.k10 = self.Q1 / self.v1
-        self.k12 = self.Q2 / self.v1
-        self.k13 = self.Q3 / self.v1
-        self.k21 = (self.k12 * self.v1) / self.v2
-        self.k31 = (self.k13 * self.v1) / self.v3
-
-    def give_drug_matrix(self, units: float, seconds: int = 0):
-
-        dose = units / self.v1
-        drugmcg = numpy.array([dose, 0, 0, 0])
-
-        updatedcomp = drugmcg + numpy.dot(self.contents, self.constants)
-        print(updatedcomp)
+    def zero_comps(self):
+        """ sets all compartment concentrations to 0 """
+        self.x1 = 0
+        self.x2 = 0
+        self.x3 = 0
+        self.xeo = 0
 
 
-    def give_drug(self, drug_milligrams):
-        """ add bolus of drug to central compartment """
-        self.x1 = self.x1 + drug_milligrams / self.v1
+    def effect_bolus(self, target: float):
+        """ determines size of bolus needed over 10 seconds to achieve target at ttpe """
 
-    def wait_time(self, time_seconds):
-        """ model distribution of drug between compartments over specified time period """
+        # store concentrations so we can reset after search
+        old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
 
+        ttpe = 90
+        bolus_seconds = 10
+        bolus = 10
+
+        effect_error = 100
+        while not -1 < effect_error < 1:
+            mgpersec = bolus / bolus_seconds
+
+            self.tenseconds(mgpersec)
+            self.wait_time(ttpe - 10)
+
+            effect_error = ((self.xeo - target) / target) * 100
+
+            step = effect_error / -5
+            bolus += step
+
+            # reset concentrations
+            self.reset_concs(old_conc)
+
+        return round(mgpersec * 10, 2)
+
+    def tenseconds(self, mgpersec: float):
+        """ gives set amount of drug every second for 10 seconds """
+        for _ in range(10):
+            self.give_drug(mgpersec)
+            self.wait_time(1)
+
+        return self.x1
+
+    def giveoverseconds(self, mgpersec: float, secs: float):
+        """ gives set amount of drug every second for user defined period"""
+        for _ in range(secs):
+            self.give_drug(mgpersec)
+            self.wait_time(1)
+
+        return self.x1
+
+    def plasma_infusion(self, target: float, time: int, period: int = 10):
+        """ returns list of infusion rates to maintain desired plasma concentration
+        inputs:
+        target: desired plasma concentration in ug/min
+        time: infusion duration in seconds
+        period: time in seconds for each chunk of pump instructions, defaults to 10
+
+        returns:
+        list of infusion rates in mg per second over period defined by user (or 10 if default)"""
+
+        old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
+        sections = round(time / period)
+        pump_instructions = []
+
+        for _ in range(sections):
+
+            first_cp = self.giveoverseconds(3, period)
+
+            self.reset_concs(old_conc)
+
+            second_cp = self.giveoverseconds(12, period)
+
+            self.reset_concs(old_conc)
+
+            gradient = (second_cp - first_cp) / 9
+            offset = first_cp - (gradient * 3)
+            final_mgpersec = (target - offset) / gradient
+            self.tenseconds(final_mgpersec)
+            
+            if final_mgpersec < 0:
+                # do not allow for a negative drug dose
+                final_mgpersec = 0
+
+            old_conc = {
+                "ox1": self.x1,
+                "ox2": self.x2,
+                "ox3": self.x3,
+                "oxeo": self.xeo,
+            }
+
+            pump_instructions.append(final_mgpersec)
+
+        return pump_instructions
+
+    def effect_target(self, target: float, time: int, period: int = 10):
+        """ returns list of infusion rates to maintain desired plasma concentration
+        inputs:
+        target: desired plasma concentration in units/ml
+        time: infusion duration in seconds
+        period: time in seconds for each chunk of pump instructions, defaults to 10
+
+        returns:
+        list of infusion rates in mg per second over period defined by user (or 10 if default)"""
+
+        old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
+        pump_instructions = []
+
+        #check current xeo to see if we need are increasing or not
+        current_ce = self.xeo
+
+        #see how long we need to wait to allow ce to decrease
+        wait_seconds = 0
+        while current_ce < target:
+            self.wait_time(1)
+            wait_seconds += 1
+
+        for _ in range(round(wait_seconds/period)):
+            pump_instructions.append(0)
+
+        #reset the concentrations so we've not change the patient state    
+        self.reset_concs(old_conc)
         
 
-        def one_second(self):
-            """ time steps must be one second for accurate modelling """
 
-            x1k10 = self.x1 * self.k10
-            x1k12 = self.x1 * self.k12
-            x1k13 = self.x1 * self.k13
-            x2k21 = self.x2 * self.k21
-            x3k31 = self.x3 * self.k31
 
-            xk1e = self.x1 * self.keo
-            xke1 = self.xeo * self.keo
-
-            self.x1 = self.x1 + (x2k21 - x1k12 + x3k31 - x1k13 - x1k10)
-            self.x2 = self.x2 + (x1k12 - x2k21)
-            self.x3 = self.x3 + (x1k13 - x3k31)
-
-            self.xeo = self.xeo + (xk1e - xke1)
-
-        for _ in range(time_seconds):
-            one_second(self)
