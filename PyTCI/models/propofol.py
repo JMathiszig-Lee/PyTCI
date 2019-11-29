@@ -322,5 +322,3 @@ class Eleveld(Propofol):
         self.keo = theta02 * ((weight / 70) ** -0.25) * exp(0.565)
 
         #Propofol.setup(self)
-
-        
