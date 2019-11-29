@@ -1,6 +1,6 @@
 import warnings
 from ..weights import leanbodymass
-from .base import Three, MatrixThree
+from .base import Three
 
 
 class Propofol(Three):

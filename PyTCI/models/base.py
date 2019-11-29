@@ -187,21 +187,32 @@ class Three:
         old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
         pump_instructions = []
 
-        #check current xeo to see if we need are increasing or not
-        current_ce = self.xeo
-
         #see how long we need to wait to allow ce to decrease
         wait_seconds = 0
-        while current_ce < target:
+        while self.xeo > target:
             self.wait_time(1)
             wait_seconds += 1
+            print(self.xeo, wait_seconds)
 
         for _ in range(round(wait_seconds/period)):
             pump_instructions.append(0)
 
         #reset the concentrations so we've not change the patient state    
         self.reset_concs(old_conc)
-        
 
+        #this is nesscary as we need instructions in user definied increments
+        self.wait_time(len(pump_instructions)*period)
+        top_up = self.effect_bolus(target)
+        pump_instructions.append(top_up)
+        self.giveoverseconds((top_up/period), period)
+
+        remaining_time = time - (len(pump_instructions) * period)
+
+        pump_instructions += self.plasma_infusion(target, remaining_time, period)
+        
+        #final reset to make sure function doesn't change pateint state
+        self.reset_concs(old_conc)
+
+        return pump_instructions
 
 
