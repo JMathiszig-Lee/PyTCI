@@ -280,7 +280,7 @@ class Eleveld(Propofol):
         q3matref = sigmoid(pmaref, theta08, 1)
 
         #fat free mass
-        ffm = alsallami(height, weight, sex)/
+        ffm = alsallami(height, weight, sex)
         ffmref = alsallami(170, 70, 'm')
 
         # opiate coeffecient, changed by .with_opiates()
@@ -291,33 +291,27 @@ class Eleveld(Propofol):
         self.v2 = theta02 * (weight / 70) * ageing(theta10, age) 
         self.v3 = theta03 * (ffm/ffmref) * self.opiatesv3 
 
-        # clearance
-        # self.q1 = (
-        #         theta04
-        #         * (weight / 70) ** 0.75
-        #         * (clmat / clmatref) #DCL
-        #         * self.opiatescl #KCL
-        #         * exp(0.265)
-        #     )
+        v2ref = theta02 * ageing(theta10, 35) 
+        v3ref = theta03 * self.opiatesv3 
+        
         if sex == "m":
             self.q1 = (
-                exp(0.265 + theta04)
+                1.79
                 * (weight / 70) ** 0.75
-                * (clmat / clmatref)
-                * self.opiatescl
+                * ((clmat / clmatref)
+                * self.opiatescl)
                 
             )
         else:
             self.q1 = (
                 theta15
                 * (weight / 70) ** 0.75
-                * (clmat / clmatref) 
-                * self.opiatescl
-                * exp(0.265)
+                * ((clmat / clmatref) 
+                * self.opiatescl)
             )
 
-        self.q2 = theta05 * (self.v2 ** 0.75) * (1 + theta16 * (1 - q3mat)) * exp(0.346)
-        self.q3 = theta06 * (self.v3 ** 0.75) * (q3mat / q3matref) * exp(0.209)
+        self.q2 = theta05 * ((self.v2/v2ref) ** 0.75) * (1 + theta16 * (1 - q3mat)) * exp(0.346)
+        self.q3 = theta06 * ((self.v3/v3ref) ** 0.75) * (q3mat / q3matref) * exp(0.209)
 
         self.keo = theta02 * ((weight / 70) ** -0.25) * exp(0.565)
 
