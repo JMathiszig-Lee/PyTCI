@@ -1,104 +1,47 @@
 import warnings
+from math import exp
 from ..weights import leanbodymass
-from .base import Three
 
 
-class Propofol(Three):
+class Propofol:
     """ Base Class for Propofol 3 compartment model """
 
-    def reset_concs(self, old_conc):
-        """ resets concentrations using python dictionary"""
-        self.x1 = old_conc["ox1"]
-        self.x2 = old_conc["ox2"]
-        self.x3 = old_conc["ox3"]
-        self.xeo = old_conc["oxeo"]
+    def setup(self):
 
-    def effect_bolus(self, target: float):
-        """ determines size of bolus needed over 10 seconds to achieve target at ttpe """
+        # Initial concentration is zero in all components
+        self.x1 = 0.0
+        self.x2 = 0.0
+        self.x3 = 0.0
+        self.xeo = 0.0
 
-        # store concentrations so we can reset after search
-        old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
+        # divide by 60 as we will be working in seconds
+        self.k10 /= 60
+        self.k12 /= 60
+        self.k13 /= 60
+        self.k21 /= 60
+        self.k31 /= 60
+        self.keo /= 60
 
-        ttpe = 90
-        bolus_seconds = 10
-        bolus = 10
+    def give_drug(self, drug_milligrams):
+        """ add bolus of drug to central compartment """
+        self.x1 = self.x1 + drug_milligrams / self.v1
 
-        effect_error = 100
-        while not -1 < effect_error < 1:
-            mgpersec = bolus / bolus_seconds
+    def wait_time(self, time_seconds):
+        """ model distribution of drug between compartments over specified time period """
+        x1k10 = self.x1 * self.k10
+        x1k12 = self.x1 * self.k12
+        x1k13 = self.x1 * self.k13
+        x2k21 = self.x2 * self.k21
+        x3k31 = self.x3 * self.k31
 
-            self.tenseconds(mgpersec)
-            self.wait_time(ttpe - 10)
+        xk1e = self.x1 * self.keo
+        xke1 = self.xeo * self.keo
 
-            effect_error = ((self.xeo - target) / target) * 100
+        self.x1 = self.x1 + (x2k21 - x1k12 + x3k31 - x1k13 - x1k10) * time_seconds
+        self.x2 = self.x2 + (x1k12 - x2k21) * time_seconds
+        self.x3 = self.x3 + (x1k13 - x3k31) * time_seconds
 
-            step = effect_error / -5
-            bolus += step
-
-            # reset concentrations
-            self.reset_concs(old_conc)
-
-        return round(mgpersec * 10, 2)
-
-    def tenseconds(self, mgpersec: float):
-        """ gives set amount of drug every second for 10 seconds """
-        for _ in range(10):
-            self.give_drug(mgpersec)
-            self.wait_time(1)
-
-        return self.x1
-
-    def giveoverseconds(self, mgpersec: float, secs: float):
-        """ gives set amount of drug every second for user defined period"""
-        for _ in range(secs):
-            self.give_drug(mgpersec)
-            self.wait_time(1)
-
-        return self.x1
-
-    def plasma_infusion(self, target: float, time: int, period: int = 10):
-        """ returns list of infusion rates to maintain desired plasma concentration
-        inputs:
-        target: desired plasma concentration in ug/min
-        time: infusion duration in seconds
-        period: time in seconds for each chunk of pump instructions, defaults to 10
-
-        returns:
-        list of infusion rates in mg per second over period defined by user (or 10 if default)"""
-
-        old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
-        sections = round(time / period)
-        pump_instructions = []
-
-        for _ in range(sections):
-
-            first_cp = self.giveoverseconds(3, period)
-
-            self.reset_concs(old_conc)
-
-            second_cp = self.giveoverseconds(12, period)
-
-            self.reset_concs(old_conc)
-
-            gradient = (second_cp - first_cp) / 9
-            offset = first_cp - (gradient * 3)
-            final_mgpersec = (target - offset) / gradient
-            self.tenseconds(final_mgpersec)
-            
-            if final_mgpersec < 0:
-                # do not allow for a negative drug dose
-                final_mgpersec = 0
-
-            old_conc = {
-                "ox1": self.x1,
-                "ox2": self.x2,
-                "ox3": self.x3,
-                "oxeo": self.xeo,
-            }
-
-            pump_instructions.append(final_mgpersec)
-
-        return pump_instructions
+        self.xeo = self.xeo + (xk1e - xke1) * time_seconds
 
 
 class Schnider(Propofol):
@@ -165,7 +108,7 @@ class Kataria(Propofol):
     Intended age range 3-11
 
     Units:
-    Age
+    Age (years)
     Weight (kg)"""
 
     def __init__(self, weight: float, age: float):
@@ -180,7 +123,14 @@ class Kataria(Propofol):
         self.Q2 = 0.063 * weight
         self.Q3 = 0.025 * weight
 
-        Propofol.from_clearances(self)
+        # now covert to rate constants
+        # source http://www.pfim.biostat.fr/PFIM_PKPD_library.pdf page 8
+
+        self.k10 = self.Q1 / self.v1
+        self.k12 = self.Q2 / self.v1
+        self.k13 = self.Q3 / self.v1
+        self.k21 = (self.k12 * self.v1) / self.v2
+        self.k31 = (self.k13 * self.v1) / self.v3
 
         self.keo = 0
 
@@ -193,10 +143,11 @@ class Paedfusor(Propofol):
 
     Units:
     Weight (kg)
+    Age (years)
 
     Reference:
     Absalom, A, Kenny, G
-    BJA: British Journal of Anaesthesia, Volume 95, Issue 1, 1 July 2005, Pages 110,
+    BJA: British Journal of Anaesthesia, Volume 95, Issue 1, 1 July 2005, Pages 110, 
     https://doi.org/10.1093/bja/aei567
     """
 
@@ -220,3 +171,156 @@ class Paedfusor(Propofol):
         self.keo = 0
 
         Propofol.setup(self)
+
+
+class Eleveld(Propofol):
+    """Eleveld universal model
+
+    Units:
+    Height (cm)
+    Weight (Kg)
+    Age (years)
+
+    Special methods for this model
+    .venous()
+    Switches from arterial(default) to venous targerting
+
+    .with_opiates()
+    models co-administration with opiates
+
+    Reference:
+
+    """
+
+    def __init__(self, age: int, weight: float, height: int, sex: str):
+        if sex != "m" and sex != "f":
+            raise ValueError(
+                "Unknown sex '%s'. This algorithm can only handle 'm' and 'f'. :(" % sex
+            )
+
+        #refernce individual:
+        #35, 70kg, 170cm, cl1.79
+
+        # post menstrual age
+        pma = age * 52 + 40
+        pmaref = 35 * 52 + 40
+
+        # constants from paper to help reduce transcioption errors
+        theta01 = 6.28
+        theta02 = 25.5
+        theta03 = 273
+        theta04 = 1.79
+        theta05 = 1.81
+        theta06 = 1.11
+        theta07 = 0.191
+        theta08 = 42.3
+        theta09 = 9.06
+        theta10 = -0.0156
+        theta11 = -0.00286
+        theta12 = 33.6
+        theta13 = -0.0138
+        theta14 = 68.3
+        theta15 = 2.10
+        theta16 = 1.30
+        theta17 = 1.42
+        theta18 = 0.68
+
+        # al-sallami allometric scaling thing
+        def alsallami(height, weight, sex):
+
+            if sex == "m":
+                alsal = 0.88 + (
+                    0.12 / (1 + (age / 13.4) ** -12.7)
+                ) * leanbodymass.janmahasation(height, weight, sex)
+            else:
+                alsal = 1.11 + (
+                    (1 - 1.11) / (1 + (age / 7.1) ** -1.1)
+                ) * leanbodymass.janmahasation(height, weight, sex)
+
+            return alsal
+
+        def ageing(i, age):
+            """ ageing function"""
+            return exp(i * (age - 35))
+
+        def sigmoid(x, e50, y):
+            """ sigmoid function from eleveld paper """
+            sig = (x ** y) / ((x ** y) + (e50 ** y))
+            return sig
+
+        def central(i):
+            """ central function """
+            return sigmoid(i, theta12, 1)
+
+        @classmethod
+        def with_opiates():
+            """ switches the opiate parameters
+            using this method indicates opiates are being administered concurrently
+            """
+            self.opiatesv3 = exp(theta13 * age)
+            self.opiatescl = exp(theta11 * age)
+
+        @classmethod
+        def venous():
+            """ switches the following parameters to target venous concentrations
+            V1
+            Ke0
+            Q2
+            """
+            self.v1 = self.v1 * (1 + theta17 * (1 - central(weight)))
+            self.keo = theta08 * ((weight / 70) ** -0.25) * exp(0.565)
+            self.q2 = theta18 * self.q2
+
+        #clearance maturation
+        clmat =  sigmoid(pma, theta08, theta09)
+        clmatref = sigmoid(pmaref, theta08, theta09)
+
+        # q3 maturation
+        q3mat = sigmoid(pma, theta14, 1)
+        q3matref = sigmoid(pmaref, theta08, 1)
+
+        #fat free mass
+        ffm = alsallami(height, weight, sex)/
+        ffmref = alsallami(170, 70, 'm')
+
+        # opiate coeffecient, changed by .with_opiates()
+        self.opiatesv3 = 1
+        self.opiatescl = 1
+
+        self.v1 = theta01 * (central(weight) / central(70))
+        self.v2 = theta02 * (weight / 70) * ageing(theta10, age) 
+        self.v3 = theta03 * (ffm/ffmref) * self.opiatesv3 
+
+        # clearance
+        # self.q1 = (
+        #         theta04
+        #         * (weight / 70) ** 0.75
+        #         * (clmat / clmatref) #DCL
+        #         * self.opiatescl #KCL
+        #         * exp(0.265)
+        #     )
+        if sex == "m":
+            self.q1 = (
+                exp(0.265 + theta04)
+                * (weight / 70) ** 0.75
+                * (clmat / clmatref)
+                * self.opiatescl
+                
+            )
+        else:
+            self.q1 = (
+                theta15
+                * (weight / 70) ** 0.75
+                * (clmat / clmatref) 
+                * self.opiatescl
+                * exp(0.265)
+            )
+
+        self.q2 = theta05 * (self.v2 ** 0.75) * (1 + theta16 * (1 - q3mat)) * exp(0.346)
+        self.q3 = theta06 * (self.v3 ** 0.75) * (q3mat / q3matref) * exp(0.209)
+
+        self.keo = theta02 * ((weight / 70) ** -0.25) * exp(0.565)
+
+        #Propofol.setup(self)
+
+        

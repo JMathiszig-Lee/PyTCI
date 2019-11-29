@@ -53,3 +53,6 @@ def test_paedfusor():
     #test warnings
     assert propofol.Paedfusor(10, 16)
     assert propofol.Paedfusor(10, 0.5)
+
+def test_eleveld():
+    testpt = propofol.Eleveld(35, 70, 170, 'm')
