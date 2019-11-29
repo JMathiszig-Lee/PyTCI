@@ -33,6 +33,13 @@ def test_plasma_infusion():
 def test_effect_infustion():
     """ basic test for effect infusion """
     testpatient = propofol.Marsh(70)
-    testpatient.keo = 1.2/60
 
-    assert testpatient.effect_target(4, 60) == [0, 0, 0, 0]
+    assert testpatient.effect_target(4, 60) == [248.04, 0, 0.28646085355070555, 0.28538760594059637, 0.2843239743904481, 0.2832698710563347]
+
+    testpatient.keo = 1.2/60
+    testpatient.give_drug(200)
+    testpatient.wait_time(90)
+
+    assert testpatient.effect_target(2.5, 60) == [0, 0, 0, 0, 0, 0]
+
+

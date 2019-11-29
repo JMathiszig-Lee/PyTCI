@@ -186,19 +186,23 @@ class Three:
 
         old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
         pump_instructions = []
+        sections = round(time / period)
 
         #see how long we need to wait to allow ce to decrease
         wait_seconds = 0
         while self.xeo > target:
             self.wait_time(1)
             wait_seconds += 1
-            print(self.xeo, wait_seconds)
 
         for _ in range(round(wait_seconds/period)):
             pump_instructions.append(0)
 
         #reset the concentrations so we've not change the patient state    
         self.reset_concs(old_conc)
+
+        #trim pump instructions if it's longer than requested
+        if len(pump_instructions) >  sections:
+            return pump_instructions[:sections]
 
         #this is nesscary as we need instructions in user definied increments
         self.wait_time(len(pump_instructions)*period)
