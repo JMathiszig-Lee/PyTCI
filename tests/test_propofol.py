@@ -20,21 +20,7 @@ def test_marsh():
 
     assert round(testpatient.v1, 1) == 16.0
     assert round(testpatient.v2, 1) == 32.4
-    assert round(testpatient.v3, 1) == 202.5
-
-def test_eleveld():
-    #ref: abstract of original paper
-
-    testpatient = propofol.Eleveld(35, 70, 170, 'm')
-    # assert testpatient.v1 == 6.28
-    # assert testpatient.v2 == 25.5
-    # assert testpatient.v3 == 273
-    # assert testpatient.q1 == 1.79
-    # assert testpatient.q2 == 1.75
-    # assert testpatient.q3 == 1.11
-    assert testpatient.keo == 0.146
-    testkeo = testpatient.keo * 60
-    assert testkeo == 0.146
+    assert round(testpatient.v3, 1) == 202.5   
 
 # values for paediatric tests are from:
 # Constant, Isabelle & Rigouzzo, Agnes. (2010). Which model for propofol TCI in children. 
@@ -70,3 +56,15 @@ def test_paedfusor():
 
 def test_eleveld():
     testpt = propofol.Eleveld(35, 70, 170, 'm')
+
+    assert testpt.v1 == 6.28
+    assert testpt.v2 == 25.5
+    assert testpt.v3 == 273
+
+    assert testpt.Q1 == 1.79
+    assert testpt.Q2 == 1.75
+    assert testpt.Q3 == 1.11
+    
+
+    testkeo = testpt.keo * 60
+    assert testkeo == 0.146

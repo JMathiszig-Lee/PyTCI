@@ -1,47 +1,13 @@
 import warnings
+from PyTCI.models.base import Three
 from math import exp
 from ..weights import leanbodymass
 
 
-class Propofol:
+class Propofol(Three):
     """ Base Class for Propofol 3 compartment model """
 
-    def setup(self):
-
-        # Initial concentration is zero in all components
-        self.x1 = 0.0
-        self.x2 = 0.0
-        self.x3 = 0.0
-        self.xeo = 0.0
-
-        # divide by 60 as we will be working in seconds
-        self.k10 /= 60
-        self.k12 /= 60
-        self.k13 /= 60
-        self.k21 /= 60
-        self.k31 /= 60
-        self.keo /= 60
-
-    def give_drug(self, drug_milligrams):
-        """ add bolus of drug to central compartment """
-        self.x1 = self.x1 + drug_milligrams / self.v1
-
-    def wait_time(self, time_seconds):
-        """ model distribution of drug between compartments over specified time period """
-        x1k10 = self.x1 * self.k10
-        x1k12 = self.x1 * self.k12
-        x1k13 = self.x1 * self.k13
-        x2k21 = self.x2 * self.k21
-        x3k31 = self.x3 * self.k31
-
-        xk1e = self.x1 * self.keo
-        xke1 = self.xeo * self.keo
-
-        self.x1 = self.x1 + (x2k21 - x1k12 + x3k31 - x1k13 - x1k10) * time_seconds
-        self.x2 = self.x2 + (x1k12 - x2k21) * time_seconds
-        self.x3 = self.x3 + (x1k13 - x3k31) * time_seconds
-
-        self.xeo = self.xeo + (xk1e - xke1) * time_seconds
+    pass
 
 
 class Schnider(Propofol):
@@ -210,7 +176,7 @@ class Eleveld(Propofol):
         theta02 = 25.5
         theta03 = 273
         theta04 = 1.79
-        theta05 = 1.81
+        theta05 = 1.75
         theta06 = 1.11
         theta07 = 0.191
         theta08 = 42.3
@@ -277,7 +243,7 @@ class Eleveld(Propofol):
 
         # q3 maturation
         q3mat = sigmoid(pma, theta14, 1)
-        q3matref = sigmoid(pmaref, theta08, 1)
+        q3matref = sigmoid(pmaref, theta14, 1)
 
         #fat free mass
         ffm = alsallami(height, weight, sex)
@@ -291,28 +257,30 @@ class Eleveld(Propofol):
         self.v2 = theta02 * (weight / 70) * ageing(theta10, age) 
         self.v3 = theta03 * (ffm/ffmref) * self.opiatesv3 
 
-        v2ref = theta02 * ageing(theta10, 35) 
+        v2ref = theta02
         v3ref = theta03 * self.opiatesv3 
         
         if sex == "m":
-            self.q1 = (
-                1.79
+            self.Q1 = (
+                theta04
                 * (weight / 70) ** 0.75
                 * ((clmat / clmatref)
                 * self.opiatescl)
                 
             )
         else:
-            self.q1 = (
+            self.Q1 = (
                 theta15
                 * (weight / 70) ** 0.75
                 * ((clmat / clmatref) 
                 * self.opiatescl)
             )
+            
+        self.Q2 = theta05 * (self.v2/v2ref) ** 0.75 * (1 + theta16 * (1 - q3mat/q3matref)) 
+        self.Q3 = theta06 * (self.v3/v3ref) ** 0.75 * (q3mat / q3matref)
 
-        self.q2 = theta05 * ((self.v2/v2ref) ** 0.75) * (1 + theta16 * (1 - q3mat)) * exp(0.346)
-        self.q3 = theta06 * ((self.v3/v3ref) ** 0.75) * (q3mat / q3matref) * exp(0.209)
 
-        self.keo = theta02 * ((weight / 70) ** -0.25) * exp(0.565)
-
-        #Propofol.setup(self)
+        self.keo = 0.146 * ((weight / 70) ** -0.25) 
+        
+        self.from_clearances()
+        self.setup()
