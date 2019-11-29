@@ -164,8 +164,8 @@ class Eleveld(Propofol):
                 "Unknown sex '%s'. This algorithm can only handle 'm' and 'f'. :(" % sex
             )
 
-        #refernce individual:
-        #35, 70kg, 170cm, cl1.79
+        # refernce individual:
+        # 35, 70kg, 170cm, cl1.79
 
         # post menstrual age
         pma = age * 52 + 40
@@ -219,14 +219,6 @@ class Eleveld(Propofol):
             return sigmoid(i, theta12, 1)
 
         @classmethod
-        def with_opiates():
-            """ switches the opiate parameters
-            using this method indicates opiates are being administered concurrently
-            """
-            self.opiatesv3 = exp(theta13 * age)
-            self.opiatescl = exp(theta11 * age)
-
-        @classmethod
         def venous():
             """ switches the following parameters to target venous concentrations
             V1
@@ -237,50 +229,51 @@ class Eleveld(Propofol):
             self.keo = theta08 * ((weight / 70) ** -0.25) * exp(0.565)
             self.q2 = theta18 * self.q2
 
-        #clearance maturation
-        clmat =  sigmoid(pma, theta08, theta09)
+        # clearance maturation
+        clmat = sigmoid(pma, theta08, theta09)
         clmatref = sigmoid(pmaref, theta08, theta09)
 
         # q3 maturation
         q3mat = sigmoid(pma, theta14, 1)
         q3matref = sigmoid(pmaref, theta14, 1)
 
-        #fat free mass
+        # fat free mass
         ffm = alsallami(height, weight, sex)
-        ffmref = alsallami(170, 70, 'm')
+        ffmref = alsallami(170, 70, "m")
 
         # opiate coeffecient, changed by .with_opiates()
         self.opiatesv3 = 1
         self.opiatescl = 1
 
+        def with_opiates(self):
+            """ switches the opiate parameters
+            using this method indicates opiates are being administered concurrently
+            """
+            self.opiatesv3 = exp(theta13 * age)
+            self.opiatescl = exp(theta11 * age)
+
         self.v1 = theta01 * (central(weight) / central(70))
-        self.v2 = theta02 * (weight / 70) * ageing(theta10, age) 
-        self.v3 = theta03 * (ffm/ffmref) * self.opiatesv3 
+        self.v2 = theta02 * (weight / 70) * ageing(theta10, age)
+        self.v3 = theta03 * (ffm / ffmref) * self.opiatesv3
 
         v2ref = theta02
-        v3ref = theta03 * self.opiatesv3 
-        
+        v3ref = theta03
+
         if sex == "m":
             self.Q1 = (
-                theta04
-                * (weight / 70) ** 0.75
-                * ((clmat / clmatref)
-                * self.opiatescl)
-                
+                theta04 * (weight / 70) ** 0.75 * ((clmat / clmatref) * self.opiatescl)
             )
         else:
             self.Q1 = (
-                theta15
-                * (weight / 70) ** 0.75
-                * ((clmat / clmatref) 
-                * self.opiatescl)
+                theta15 * (weight / 70) ** 0.75 * ((clmat / clmatref) * self.opiatescl)
             )
-            
-        self.Q2 = theta05 * (self.v2/v2ref) ** 0.75 * (1 + theta16 * (1 - q3mat/q3matref)) 
-        self.Q3 = theta06 * (self.v3/v3ref) ** 0.75 * (q3mat / q3matref)
 
+        self.Q2 = (
+            theta05 * (self.v2 / v2ref) ** 0.75 * (1 + theta16 * (1 - q3mat / q3matref))
+        )
+        self.Q3 = theta06 * (self.v3 / v3ref) ** 0.75 * (q3mat / q3matref)
 
-        self.keo = 0.146 * ((weight / 70) ** -0.25) 
-        
+        self.keo = 0.146 * ((weight / 70) ** -0.25)
+
         self.from_clearances()
         self.setup()

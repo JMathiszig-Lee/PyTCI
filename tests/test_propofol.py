@@ -68,3 +68,8 @@ def test_eleveld():
 
     testkeo = testpt.keo * 60
     assert testkeo == 0.146
+
+def test_eleveld_extras():
+    testpt = propofol.Eleveld(35, 70, 170, 'm')
+    testpt.with_opiates()
+    assert testpt.Q1 != 1.79
