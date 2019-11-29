@@ -6,8 +6,8 @@ from ..weights import leanbodymass
 
 class Propofol(Three):
     """ Base Class for Propofol 3 compartment model """
-
     pass
+    
 
 
 class Schnider(Propofol):
