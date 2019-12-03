@@ -6,8 +6,8 @@ from ..weights import leanbodymass
 
 class Propofol(Three):
     """ Base Class for Propofol 3 compartment model """
+
     pass
-    
 
 
 class Schnider(Propofol):
@@ -150,6 +150,7 @@ class Eleveld(Propofol):
     Special methods for this model
     .venous()
     Switches from arterial(default) to venous targerting
+    
 
     .with_opiates()
     models co-administration with opiates
@@ -218,17 +219,6 @@ class Eleveld(Propofol):
             """ central function """
             return sigmoid(i, theta12, 1)
 
-        @classmethod
-        def venous():
-            """ switches the following parameters to target venous concentrations
-            V1
-            Ke0
-            Q2
-            """
-            self.v1 = self.v1 * (1 + theta17 * (1 - central(weight)))
-            self.keo = theta08 * ((weight / 70) ** -0.25) * exp(0.565)
-            self.q2 = theta18 * self.q2
-
         # clearance maturation
         clmat = sigmoid(pma, theta08, theta09)
         clmatref = sigmoid(pmaref, theta08, theta09)
@@ -244,13 +234,6 @@ class Eleveld(Propofol):
         # opiate coeffecient, changed by .with_opiates()
         self.opiatesv3 = 1
         self.opiatescl = 1
-
-        def with_opiates(self):
-            """ switches the opiate parameters
-            using this method indicates opiates are being administered concurrently
-            """
-            self.opiatesv3 = exp(theta13 * age)
-            self.opiatescl = exp(theta11 * age)
 
         self.v1 = theta01 * (central(weight) / central(70))
         self.v2 = theta02 * (weight / 70) * ageing(theta10, age)
@@ -277,3 +260,20 @@ class Eleveld(Propofol):
 
         self.from_clearances()
         self.setup()
+
+    # def with_opiates(self):
+    #     """ switches the opiate parameters
+    #         using this method indicates opiates are being administered concurrently
+    #         """
+    #     self.opiatesv3 = exp(theta13 * self.age)
+    #     self.opiatescl = exp(theta11 * self.age)
+
+    # def venous():
+    #     """ switches the following parameters to target venous concentrations
+    #         V1
+    #         Ke0
+    #         Q2
+    #         """
+    #     self.v1 = self.v1 * (1 + theta17 * (1 - central(weight)))
+    #     self.keo = theta08 * ((weight / 70) ** -0.25) * exp(0.565)
+    #     self.q2 = theta18 * self.q2
