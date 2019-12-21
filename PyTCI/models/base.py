@@ -86,7 +86,6 @@ class Three:
         self.x3 = 0
         self.xeo = 0
 
-
     def effect_bolus(self, target: float):
         """ determines size of bolus needed over 10 seconds to achieve target at ttpe """
 
@@ -158,7 +157,7 @@ class Three:
             offset = first_cp - (gradient * 3)
             final_mgpersec = (target - offset) / gradient
             self.tenseconds(final_mgpersec)
-            
+
             if final_mgpersec < 0:
                 # do not allow for a negative drug dose
                 final_mgpersec = 0
@@ -188,35 +187,33 @@ class Three:
         pump_instructions = []
         sections = round(time / period)
 
-        #see how long we need to wait to allow ce to decrease
+        # see how long we need to wait to allow ce to decrease
         wait_seconds = 0
         while self.xeo > target:
             self.wait_time(1)
             wait_seconds += 1
 
-        for _ in range(round(wait_seconds/period)):
+        for _ in range(round(wait_seconds / period)):
             pump_instructions.append(0)
 
-        #reset the concentrations so we've not change the patient state    
+        # reset the concentrations so we've not change the patient state
         self.reset_concs(old_conc)
 
-        #trim pump instructions if it's longer than requested
-        if len(pump_instructions) >  sections:
+        # trim pump instructions if it's longer than requested
+        if len(pump_instructions) > sections:
             return pump_instructions[:sections]
 
-        #this is nesscary as we need instructions in user definied increments
-        self.wait_time(len(pump_instructions)*period)
+        # this is nesscary as we need instructions in user definied increments
+        self.wait_time(len(pump_instructions) * period)
         top_up = self.effect_bolus(target)
         pump_instructions.append(top_up)
-        self.giveoverseconds((top_up/period), period)
+        self.giveoverseconds((top_up / period), period)
 
         remaining_time = time - (len(pump_instructions) * period)
 
         pump_instructions += self.plasma_infusion(target, remaining_time, period)
-        
-        #final reset to make sure function doesn't change pateint state
+
+        # final reset to make sure function doesn't change pateint state
         self.reset_concs(old_conc)
 
         return pump_instructions
-
-

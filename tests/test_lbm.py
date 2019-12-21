@@ -60,5 +60,10 @@ def test_adjustedbodyweight():
     with pytest.raises(ValueError):
         leanbodymass.adjustedbodyweight(180, 60, "g")
 
-def test_bmi():
-    assert leanbodymass.bmi(180, 80) == 24.7
+def test_ffm():
+        assert round(leanbodymass.alsallami(35, 175, 70, "m"), 1) == 55.8
+        assert round(leanbodymass.alsallami(35, 175, 70, "f"), 1) == 45.9
+
+        with pytest.raises(ValueError):
+                leanbodymass.alsallami(175, 70, "g", 35)
+

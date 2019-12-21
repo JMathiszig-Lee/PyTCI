@@ -29,6 +29,7 @@ PyTCI currently supports the following:
 * Hume(1966)
 * Hume(1971)
 * Janmahasation(2005)
+* Al-Sallami
 
 example:
 ```python
@@ -40,11 +41,13 @@ example:
 **Propofol**
 * Schnider
 * Marsh
+* Eleveld
 * Kataria
 * Paedfusor
 
 **Remifentanil**
 * Minto
+* Eleveld
 
 **Alfentanil**
 * Maitre
