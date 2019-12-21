@@ -72,8 +72,8 @@ class Eleveld(Remifentanil):
         Θ5 = 0.470
         Θ6 = -0.0260
 
-        ffm = leanbodymass.alsallami(height, weight, sex, age)
-        ffmref = leanbodymass.alsallami(170, 70, "m", 35)
+        ffm = leanbodymass.alsallami(age, height, weight, sex)
+        ffmref = leanbodymass.alsallami(35, 170, 70, "m")
         Fsize = ffm / ffmref
 
         mat = sigmoid(weight, Θ1, 2)
@@ -84,9 +84,7 @@ class Eleveld(Remifentanil):
         if sex == "m":
             Fsex = 1
         elif sex == "f":
-            Fsex = 1 + 0.47 * sigmoid(age, 12, 6) * sigmoid(age, 45, 6)
-        else:
-            raise ValueError("Invalid Sex")
+            Fsex = 1 + Θ5 * sigmoid(age, 12, 6) * (1- sigmoid(age, 45, 6))
 
         self.v1 = v1ref * Fsize * ageing(Θ2, age)
         self.v2 = v2ref * Fsize * ageing(Θ3, age) * Fsex
@@ -97,3 +95,6 @@ class Eleveld(Remifentanil):
         self.Q3 = q3ref * (self.v3 / v3ref) ** 0.75 * ageing(Θ2, age)
 
         self.keo = 1.09 * ageing(-0.0289, age)
+
+        self.from_clearances()
+        self.setup()

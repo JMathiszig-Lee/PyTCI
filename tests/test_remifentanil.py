@@ -24,5 +24,15 @@ def test_eleveld():
     assert testpatient.Q2 == 1.72
     assert testpatient.Q3 == 0.124
 
+    refkeo = 1.09/60
+    assert testpatient.keo == refkeo
+
+    #check female doesn't error out
+    testpatientF = remifentanil.Eleveld(35, 70, 170, 'f')
+    assert round(testpatientF.v1, 2) == 4.79
+    assert round(testpatientF.v2, 2)  == 10.06
+    assert round(testpatientF.Q1, 2)  == 3.09
+    
+
     with pytest.raises(ValueError):
         remifentanil.Eleveld(35, 70, 170, 'h')

@@ -112,15 +112,15 @@ def adjustedbodyweight(height: float, weight: float, sex: str) -> float:
     return round(abw, 1)
 
 
-def alsallami(height: float, weight: float, sex: str, age: float) -> float:
+def alsallami(age: float, height: float, weight: float, sex: str) -> float:
 
     if sex == "m":
-        alsal = 0.88 + (0.12 / (1 + (age / 13.4) ** -12.7)) * janmahasation(
-            height, weight, sex
-        )
+        alsal = (0.88 + (
+            0.12 / (1 + (age / 13.4) ** -12.7)
+        ) )* janmahasation(height, weight, sex)
     else:
-        alsal = 1.11 + ((1 - 1.11) / (1 + (age / 7.1) ** -1.1)) * janmahasation(
-            height, weight, sex
-        )
+        alsal = (1.11 + (
+            (1 - 1.11) / (1 + (age / 7.1) ** -1.1)
+        )) * janmahasation(height, weight, sex)
 
     return alsal

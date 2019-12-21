@@ -167,7 +167,7 @@ class Eleveld(Propofol):
 
         # refernce individual:
         # 35, 70kg, 170cm, cl1.79
-
+        self.age = age
         # post menstrual age
         pma = age * 52 + 40
         pmaref = 35 * 52 + 40
@@ -183,28 +183,14 @@ class Eleveld(Propofol):
         theta08 = 42.3
         theta09 = 9.06
         theta10 = -0.0156
-        theta11 = -0.00286
+        self.theta11 = -0.00286
         theta12 = 33.6
-        theta13 = -0.0138
+        self.theta13 = -0.0138
         theta14 = 68.3
         theta15 = 2.10
         theta16 = 1.30
         theta17 = 1.42
         theta18 = 0.68
-
-        # al-sallami allometric scaling thing
-        def alsallami(height, weight, sex):
-
-            if sex == "m":
-                alsal = 0.88 + (
-                    0.12 / (1 + (age / 13.4) ** -12.7)
-                ) * leanbodymass.janmahasation(height, weight, sex)
-            else:
-                alsal = 1.11 + (
-                    (1 - 1.11) / (1 + (age / 7.1) ** -1.1)
-                ) * leanbodymass.janmahasation(height, weight, sex)
-
-            return alsal
 
         def ageing(i, age):
             """ ageing function"""
@@ -228,8 +214,8 @@ class Eleveld(Propofol):
         q3matref = sigmoid(pmaref, theta14, 1)
 
         # fat free mass
-        ffm = alsallami(height, weight, sex)
-        ffmref = alsallami(170, 70, "m")
+        ffm = leanbodymass.alsallami(age, height, weight, sex)
+        ffmref = leanbodymass.alsallami(35, 170, 70, "m")
 
         # opiate coeffecient, changed by .with_opiates()
         self.opiatesv3 = 1
@@ -261,12 +247,18 @@ class Eleveld(Propofol):
         self.from_clearances()
         self.setup()
 
-    # def with_opiates(self):
-    #     """ switches the opiate parameters
-    #         using this method indicates opiates are being administered concurrently
-    #         """
-    #     self.opiatesv3 = exp(theta13 * self.age)
-    #     self.opiatescl = exp(theta11 * self.age)
+    def with_opiates(self):
+        """ switches the opiate parameters
+            using this method indicates opiates are being administered concurrently 
+            
+        """
+        self.opiatesv3 = exp(self.theta13 * self.age)
+        self.opiatescl = exp(self.theta11 * self.age)
+
+        self.Q1 *= self.opiatescl
+        self.from_clearances()
+
+
 
     # def venous():
     #     """ switches the following parameters to target venous concentrations

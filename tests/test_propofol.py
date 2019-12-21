@@ -1,4 +1,5 @@
 from PyTCI.models import propofol
+import pytest
 #source for values in marsh and schnider independantly derived https://academic.oup.com/view-large/91165989
 
 def test_schnider():
@@ -64,7 +65,20 @@ def test_eleveld():
     assert testpt.Q1 == 1.79
     assert testpt.Q2 == 1.75
     assert testpt.Q3 == 1.11
-    
 
     testkeo = testpt.keo * 60
     assert testkeo == 0.146
+
+    preopiatecl = testpt.k10
+
+    testpt.with_opiates()
+    assert testpt.Q1 == 1.6194970204845642
+    assert testpt.k10 != preopiatecl
+
+    
+    testpt2 = propofol.Eleveld(35, 70, 170, 'f')
+    assert round(testpt2.v3) == 225
+    assert testpt2.Q1 == 2.1
+
+    with pytest.raises(ValueError):
+        propofol.Eleveld(35, 70, 170, 'h')
