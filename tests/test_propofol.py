@@ -69,13 +69,15 @@ def test_eleveld():
     testkeo = testpt.keo * 60
     assert testkeo == 0.146
 
-    preopiatecl = testpt.k10
 
+    #test that the opiae function changes things
+    preopiatecl = testpt.k10
     testpt.with_opiates()
     assert testpt.Q1 == 1.6194970204845642
+    assert testpt.v3 != 273
     assert testpt.k10 != preopiatecl
 
-    
+    #test for female patient
     testpt2 = propofol.Eleveld(35, 70, 170, 'f')
     assert round(testpt2.v3) == 225
     assert testpt2.Q1 == 2.1

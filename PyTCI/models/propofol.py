@@ -217,24 +217,20 @@ class Eleveld(Propofol):
         ffm = leanbodymass.alsallami(age, height, weight, sex)
         ffmref = leanbodymass.alsallami(35, 170, 70, "m")
 
-        # opiate coeffecient, changed by .with_opiates()
-        self.opiatesv3 = 1
-        self.opiatescl = 1
-
         self.v1 = theta01 * (central(weight) / central(70))
         self.v2 = theta02 * (weight / 70) * ageing(theta10, age)
-        self.v3 = theta03 * (ffm / ffmref) * self.opiatesv3
+        self.v3 = theta03 * (ffm / ffmref)
 
         v2ref = theta02
         v3ref = theta03
 
         if sex == "m":
             self.Q1 = (
-                theta04 * (weight / 70) ** 0.75 * ((clmat / clmatref) * self.opiatescl)
+                theta04 * (weight / 70) ** 0.75 * (clmat / clmatref)
             )
         else:
             self.Q1 = (
-                theta15 * (weight / 70) ** 0.75 * ((clmat / clmatref) * self.opiatescl)
+                theta15 * (weight / 70) ** 0.75 * (clmat / clmatref)
             )
 
         self.Q2 = (
@@ -252,10 +248,12 @@ class Eleveld(Propofol):
             using this method indicates opiates are being administered concurrently 
             
         """
-        self.opiatesv3 = exp(self.theta13 * self.age)
-        self.opiatescl = exp(self.theta11 * self.age)
+        opiatesv3 = exp(self.theta13 * self.age)
+        opiatescl = exp(self.theta11 * self.age)
 
-        self.Q1 *= self.opiatescl
+        self.v3 *= opiatesv3
+        self.Q1 *= opiatescl
+        
         self.from_clearances()
 
 
