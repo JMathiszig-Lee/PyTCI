@@ -1,9 +1,12 @@
-workflow "Example Workflow" {
-  on = "push"
-  resolves = ["Lint"]
-}
+name: EveryrepoPush
 
-action "Lint" {
-  uses = "lgeiger/black-action@master"
-  args = ". --check"
-}
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Black Code Formatter
+      uses: lgeiger/black-action@v1.0.1
