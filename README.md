@@ -7,6 +7,8 @@ Spawned from the NHS Hack Day project https://github.com/JMathiszig-Lee/Propofol
 [![Build Status](https://travis-ci.org/JMathiszig-Lee/PyTCI.svg?branch=master)](https://travis-ci.org/JMathiszig-Lee/PyTCI)
 [![Coverage Status](https://coveralls.io/repos/github/JMathiszig-Lee/PyTCI/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/JMathiszig-Lee/PyTCI?branch=master)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/PyTCI)
+[![GitHub license](https://img.shields.io/github/license/JMathiszig-Lee/PyTCI)](https://github.com/JMathiszig-Lee/PyTCI/blob/master/license.txt)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/JMathiszig-Lee/PyTCI.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/JMathiszig-Lee/PyTCI/context:python)
 
 # Installation
 if using pip
