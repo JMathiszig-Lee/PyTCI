@@ -150,11 +150,11 @@
         },
         "importlib-metadata": {
             "hashes": [
-                "sha256:5c5a2720817414a6c41f0a49993908068243ae02c1635a228126519b509c8aed",
-                "sha256:bf792d480abbd5eda85794e4afb09dd538393f7d6e6ffef6e9f03d2014cf9450"
+                "sha256:ace61d5fc652dc280e7b6b4ff732a9c2d40db2c0f92bc6cb74e07b73d53a1771",
+                "sha256:fa5daa4477a7414ae34e95942e4dd07f62adf589143c875c133c1e53c4eff38d"
             ],
             "markers": "python_version < '3.8'",
-            "version": "==3.3.0"
+            "version": "==3.4.0"
         },
         "iniconfig": {
             "hashes": [
@@ -249,11 +249,11 @@
         },
         "pytest-cov": {
             "hashes": [
-                "sha256:45ec2d5182f89a81fc3eb29e3d1ed3113b9e9a873bcddb2a71faaab066110191",
-                "sha256:47bd0ce14056fdd79f93e1713f88fad7bdcc583dcd7783da86ef2f085a0bb88e"
+                "sha256:626a8a6ab188656c4f84b67d22436d6c494699d917e567e0048dda6e7f59e028",
+                "sha256:e90e034cde61dacb1394639a33f449725c591025b182d69752c1dd0bfec639a7"
             ],
             "index": "pypi",
-            "version": "==2.10.1"
+            "version": "==2.11.0"
         },
         "six": {
             "hashes": [
