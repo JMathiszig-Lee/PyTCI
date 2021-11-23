@@ -225,13 +225,9 @@ class Eleveld(Propofol):
         v3ref = theta03
 
         if sex == "m":
-            self.Q1 = (
-                theta04 * (weight / 70) ** 0.75 * (clmat / clmatref)
-            )
+            self.Q1 = theta04 * (weight / 70) ** 0.75 * (clmat / clmatref)
         else:
-            self.Q1 = (
-                theta15 * (weight / 70) ** 0.75 * (clmat / clmatref)
-            )
+            self.Q1 = theta15 * (weight / 70) ** 0.75 * (clmat / clmatref)
 
         self.Q2 = (
             theta05 * (self.v2 / v2ref) ** 0.75 * (1 + theta16 * (1 - q3mat / q3matref))
@@ -253,10 +249,8 @@ class Eleveld(Propofol):
 
         self.v3 *= opiatesv3
         self.Q1 *= opiatescl
-        
+
         self.from_clearances()
-
-
 
     # def venous():
     #     """ switches the following parameters to target venous concentrations

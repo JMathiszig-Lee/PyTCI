@@ -84,7 +84,7 @@ class Eleveld(Remifentanil):
         if sex == "m":
             Fsex = 1
         elif sex == "f":
-            Fsex = 1 + Θ5 * sigmoid(age, 12, 6) * (1- sigmoid(age, 45, 6))
+            Fsex = 1 + Θ5 * sigmoid(age, 12, 6) * (1 - sigmoid(age, 45, 6))
 
         self.v1 = v1ref * Fsize * ageing(Θ2, age)
         self.v2 = v2ref * Fsize * ageing(Θ3, age) * Fsex
