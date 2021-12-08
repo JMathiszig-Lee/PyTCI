@@ -1,3 +1,5 @@
+from numba import njit
+
 class Three:
     """ Base 3 compartment model"""
 
@@ -51,6 +53,7 @@ class Three:
     def wait_time(self, time_seconds):
         """ model distribution of drug between compartments over specified time period """
 
+        @njit
         def one_second(self):
             """ time steps must be one second for accurate modelling """
 
