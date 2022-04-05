@@ -2,15 +2,14 @@ import warnings
 from PyTCI.models.base import Three
 from math import exp
 from ..weights import leanbodymass
+from numba.experimental import jitclass
 
+# class Propofol(Three):
+#     """ Base Class for Propofol 3 compartment model """
 
-class Propofol(Three):
-    """ Base Class for Propofol 3 compartment model """
+#     pass
 
-    pass
-
-
-class Schnider(Propofol):
+class Schnider(Three):
     """ Implementation of the schnider model """
 
     # UNITS:
@@ -40,10 +39,10 @@ class Schnider(Propofol):
 
         self.keo = 0.456
 
-        Propofol.setup(self)
+        Three.setup(self)
 
 
-class Marsh(Propofol):
+class Marsh(Three):
     """ Marsh 3 compartment Propofol Pk Model
 
     Units required:
@@ -66,10 +65,10 @@ class Marsh(Propofol):
 
         self.keo = 0.26
 
-        Propofol.setup(self)
+        Three.setup(self)
 
 
-class Kataria(Propofol):
+class Kataria(Three):
     """Kataria paediatric model
     Intended age range 3-11
 
@@ -100,10 +99,10 @@ class Kataria(Propofol):
 
         self.keo = 0
 
-        Propofol.setup(self)
+        Three.setup(self)
 
 
-class Paedfusor(Propofol):
+class Paedfusor(Three):
     """Paedfusor paediatric model
     Intended age range 1-12
 
@@ -136,10 +135,10 @@ class Paedfusor(Propofol):
 
         self.keo = 0
 
-        Propofol.setup(self)
+        Three.setup(self)
 
 
-class Eleveld(Propofol):
+class Eleveld(Three):
     """Eleveld universal model
 
     Units:
