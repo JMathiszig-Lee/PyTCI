@@ -47,11 +47,12 @@ def test_janmahasation():
 
 
 def test_idealbodyweight():
-    assert leanbodymass.idealbodyweight(180, 'm') == 75.1
+    assert leanbodymass.idealbodyweight(180, "m") == 75.1
     assert leanbodymass.idealbodyweight(165, "f") == 57.0
 
     with pytest.raises(ValueError):
         leanbodymass.idealbodyweight(180, "g")
+
 
 def test_adjustedbodyweight():
     assert leanbodymass.adjustedbodyweight(180, 80, "m") == 77.1
@@ -60,10 +61,10 @@ def test_adjustedbodyweight():
     with pytest.raises(ValueError):
         leanbodymass.adjustedbodyweight(180, 60, "g")
 
+
 def test_ffm():
-        assert round(leanbodymass.alsallami(35, 175, 70, "m"), 1) == 55.8
-        assert round(leanbodymass.alsallami(35, 175, 70, "f"), 1) == 45.9
+    assert round(leanbodymass.alsallami(35, 175, 70, "m"), 1) == 55.8
+    assert round(leanbodymass.alsallami(35, 175, 70, "f"), 1) == 45.9
 
-        with pytest.raises(ValueError):
-                leanbodymass.alsallami(175, 70, "g", 35)
-
+    with pytest.raises(ValueError):
+        leanbodymass.alsallami(175, 70, "g", 35)

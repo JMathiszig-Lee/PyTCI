@@ -3,23 +3,23 @@ from PyTCI.models.base import Three
 
 
 class Dexmed(Three):
-    """ base class for demedetomidine"""
+    """base class for demedetomidine"""
 
     pass
 
 
 class Hannivoort(Dexmed):
     def __init__(self, weight: int):
-        """ 3 compartment dexmedetomidine Pk model
+        """3 compartment dexmedetomidine Pk model
 
         Units:
         weight(kg)
 
         Reference:
-        Hannivoort, L, et al 
+        Hannivoort, L, et al
         Development of an Optimized Pharmacokinetic Model of Dexmedetomidine Using Target-controlled Infusion in Healthy Volunteers
-        Anesthesiology 8 2015, Vol.123, 357-367. 
-        doi:10.1097/ALN.0000000000000740 
+        Anesthesiology 8 2015, Vol.123, 357-367.
+        doi:10.1097/ALN.0000000000000740
         """
 
         self.v1 = 1.78 * (weight / 70)
@@ -48,7 +48,7 @@ class Dyck(Dexmed):
         Dyck, JB, et al
         Computer-controlled infusion of intravenous dexmedetomidine hydrochloride in adult human volunteers
         Anesthesiology. 1993 May;78(5):821-8.
-        PMID:8098191 DOI:10.1097/00000542-199305000-00003 
+        PMID:8098191 DOI:10.1097/00000542-199305000-00003
         """
 
         self.v1 = 7.99

@@ -1,5 +1,5 @@
 class Three:
-    """ Base 3 compartment model"""
+    """Base 3 compartment model"""
 
     def setup(self):
 
@@ -45,14 +45,14 @@ class Three:
         self.k31 = (self.k13 * self.v1) / self.v3
 
     def give_drug(self, drug_milligrams):
-        """ add bolus of drug to central compartment """
+        """add bolus of drug to central compartment"""
         self.x1 = self.x1 + drug_milligrams / self.v1
 
     def wait_time(self, time_seconds):
-        """ model distribution of drug between compartments over specified time period """
+        """model distribution of drug between compartments over specified time period"""
 
         def one_second(self):
-            """ time steps must be one second for accurate modelling """
+            """time steps must be one second for accurate modelling"""
 
             x1k10 = self.x1 * self.k10
             x1k12 = self.x1 * self.k12
@@ -73,21 +73,21 @@ class Three:
             one_second(self)
 
     def reset_concs(self, old_conc):
-        """ resets concentrations using python dictionary"""
+        """resets concentrations using python dictionary"""
         self.x1 = old_conc["ox1"]
         self.x2 = old_conc["ox2"]
         self.x3 = old_conc["ox3"]
         self.xeo = old_conc["oxeo"]
 
     def zero_comps(self):
-        """ sets all compartment concentrations to 0 """
+        """sets all compartment concentrations to 0"""
         self.x1 = 0
         self.x2 = 0
         self.x3 = 0
         self.xeo = 0
 
     def effect_bolus(self, target: float):
-        """ determines size of bolus needed over 10 seconds to achieve target at ttpe """
+        """determines size of bolus needed over 10 seconds to achieve target at ttpe"""
 
         # store concentrations so we can reset after search
         old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
@@ -114,7 +114,7 @@ class Three:
         return round(mgpersec * 10, 2)
 
     def tenseconds(self, mgpersec: float):
-        """ gives set amount of drug every second for 10 seconds """
+        """gives set amount of drug every second for 10 seconds"""
         for _ in range(10):
             self.give_drug(mgpersec)
             self.wait_time(1)
@@ -122,7 +122,7 @@ class Three:
         return self.x1
 
     def giveoverseconds(self, mgpersec: float, secs: float):
-        """ gives set amount of drug every second for user defined period"""
+        """gives set amount of drug every second for user defined period"""
         for _ in range(secs):
             self.give_drug(mgpersec)
             self.wait_time(1)
@@ -130,7 +130,7 @@ class Three:
         return self.x1
 
     def plasma_infusion(self, target: float, time: int, period: int = 10):
-        """ returns list of infusion rates to maintain desired plasma concentration
+        """returns list of infusion rates to maintain desired plasma concentration
         inputs:
         target: desired plasma concentration in ug/min
         time: infusion duration in seconds
@@ -174,7 +174,7 @@ class Three:
         return pump_instructions
 
     def effect_target(self, target: float, time: int, period: int = 10):
-        """ returns list of infusion rates to maintain desired plasma concentration
+        """returns list of infusion rates to maintain desired plasma concentration
         inputs:
         target: desired plasma concentration in units/ml
         time: infusion duration in seconds

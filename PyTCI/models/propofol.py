@@ -5,13 +5,13 @@ from ..weights import leanbodymass
 
 
 class Propofol(Three):
-    """ Base Class for Propofol 3 compartment model """
+    """Base Class for Propofol 3 compartment model"""
 
     pass
 
 
 class Schnider(Propofol):
-    """ Implementation of the schnider model """
+    """Implementation of the schnider model"""
 
     # UNITS:
     # age: years
@@ -44,7 +44,7 @@ class Schnider(Propofol):
 
 
 class Marsh(Propofol):
-    """ Marsh 3 compartment Propofol Pk Model
+    """Marsh 3 compartment Propofol Pk Model
 
     Units required:
     weight (kg)
@@ -113,7 +113,7 @@ class Paedfusor(Propofol):
 
     Reference:
     Absalom, A, Kenny, G
-    BJA: British Journal of Anaesthesia, Volume 95, Issue 1, 1 July 2005, Pages 110, 
+    BJA: British Journal of Anaesthesia, Volume 95, Issue 1, 1 July 2005, Pages 110,
     https://doi.org/10.1093/bja/aei567
     """
 
@@ -150,7 +150,7 @@ class Eleveld(Propofol):
     Special methods for this model
     .venous()
     Switches from arterial(default) to venous targerting
-    
+
 
     .with_opiates()
     models co-administration with opiates
@@ -193,16 +193,16 @@ class Eleveld(Propofol):
         theta18 = 0.68
 
         def ageing(i, age):
-            """ ageing function"""
+            """ageing function"""
             return exp(i * (age - 35))
 
         def sigmoid(x, e50, y):
-            """ sigmoid function from eleveld paper """
+            """sigmoid function from eleveld paper"""
             sig = (x ** y) / ((x ** y) + (e50 ** y))
             return sig
 
         def central(i):
-            """ central function """
+            """central function"""
             return sigmoid(i, theta12, 1)
 
         # clearance maturation
@@ -225,13 +225,9 @@ class Eleveld(Propofol):
         v3ref = theta03
 
         if sex == "m":
-            self.Q1 = (
-                theta04 * (weight / 70) ** 0.75 * (clmat / clmatref)
-            )
+            self.Q1 = theta04 * (weight / 70) ** 0.75 * (clmat / clmatref)
         else:
-            self.Q1 = (
-                theta15 * (weight / 70) ** 0.75 * (clmat / clmatref)
-            )
+            self.Q1 = theta15 * (weight / 70) ** 0.75 * (clmat / clmatref)
 
         self.Q2 = (
             theta05 * (self.v2 / v2ref) ** 0.75 * (1 + theta16 * (1 - q3mat / q3matref))
@@ -244,19 +240,17 @@ class Eleveld(Propofol):
         self.setup()
 
     def with_opiates(self):
-        """ switches the opiate parameters
-            using this method indicates opiates are being administered concurrently 
-            
+        """switches the opiate parameters
+        using this method indicates opiates are being administered concurrently
+
         """
         opiatesv3 = exp(self.theta13 * self.age)
         opiatescl = exp(self.theta11 * self.age)
 
         self.v3 *= opiatesv3
         self.Q1 *= opiatescl
-        
+
         self.from_clearances()
-
-
 
     # def venous():
     #     """ switches the following parameters to target venous concentrations
