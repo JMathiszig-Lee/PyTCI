@@ -6,7 +6,7 @@ from numba.typed import List as NumbaList
 import numpy as np
 
 @njit()
-def jit_one_second(concs, consts):
+def jit_one_second(concs:NumbaList[float], consts:NumbaList[float]):
     """ time steps must be one second for accurate modelling """
     # x1k10 : float
     # x1k12 : float
@@ -81,6 +81,8 @@ class Three:
         self.k31 /= 60
         self.keo /= 60
 
+        self.constants = np.array([self.k10, self.k12, self.k13, self.k21, self.k31, self.keo])
+
     def from_clearances(self):
         """
         Converts intercompartment clearances into rate constants
@@ -100,62 +102,24 @@ class Three:
 
     def jit_wait_time(self, time_seconds):
         """ model distribution of drug between compartments over specified time period """
-        constants = np.array([self.k10, self.k12, self.k13, self.k21, self.k31, self.keo])
-        # @staticmethod
-        # @njit
-        # def jit_one_second(concs, consts):
-        #     """ time steps must be one second for accurate modelling """
-        #     # x1k10 : float
-        #     # x1k12 : float
-        #     # x1k13 : float
-        #     # x2k21 : float
-        #     # x3k31 : float
-
-        #     # xk1e : float
-        #     # xke1 : float
-
-        #     # x1 : float
-        #     # x2 : float
-        #     # x3 : float
-        #     # x0 : float
-
-        #     # concs:NumbaList[float]
-        #     # consts:NumbaList[float]
-
-        #     x1k10 = concs[0] * consts[0]
-        #     x1k12 = concs[0] * consts[1]
-        #     x1k13 = concs[0] * consts[2]
-        #     x2k21 = concs[1] * consts[3]
-        #     x3k31 = concs[2] * consts[4]
-
-        #     xk1e = concs[0] * consts[5]
-        #     xke1 = concs[3] * consts[5]
-
-        #     x1 = concs[0] + (x2k21 - x1k12 + x3k31 - x1k13 - x1k10)
-        #     x2 = concs[1] + (x1k12 - x2k21)
-        #     x3 = concs[2] + (x1k13 - x3k31)
-        #     x0 = concs[3] + (xk1e - xke1)
-
-        #     # return (x1, x2, x3, x0)
-
+        concentrations = np.array([self.x1, self.x2, self.x3, self.xeo])
         for _ in range(time_seconds):
-            concentrations = np.array([self.x1, self.x2, self.x3, self.xeo])
-            self.x1, self.x2, self.x3, self.xe0 = jit_one_second(concentrations, constants)
-            # jit_one_second(concentrations, constants)
+            self.x1, self.x2, self.x3, self.xe0 = jit_one_second(concentrations, self.constants)
     
     def wait_time(self, time_seconds):
         """ model distribution of drug between compartments over specified time period """
+        x1k10 : float
+        x1k12 : float
+        x1k13 : float
+        x2k21 : float
+        x3k31 : float
 
+        xk1e : float
+        xke1 : float
         def one_second(self):
             """ time steps must be one second for accurate modelling """
-            x1k10 : float
-            x1k12 : float
-            x1k13 : float
-            x2k21 : float
-            x3k31 : float
+            
 
-            xk1e : float
-            xke1 : float
 
             x1k10 = self.x1 * self.k10
             x1k12 = self.x1 * self.k12
