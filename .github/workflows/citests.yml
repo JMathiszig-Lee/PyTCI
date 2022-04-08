@@ -1,4 +1,4 @@
-name : Test
+name: Test
 
 on: 
   push:
@@ -15,7 +15,7 @@ jobs:
       matrix:
         python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
 
-   steps:
+    steps:
       - uses: "actions/checkout@v2"
       - uses: "actions/setup-python@v2"
         with:
@@ -27,7 +27,7 @@ jobs:
           pip install pipenv
           pipenv install --dev
           pipenv install coveralls --skip-lock
-          
+
       - name: Test with pytest
         run: |
           pipenv run pytest --cov=app
