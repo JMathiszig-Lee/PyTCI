@@ -5,25 +5,9 @@ from numba import njit
 from numba.typed import List as NumbaList
 import numpy as np
 
-@njit()
-def jit_one_second(concs:NumbaList[float], consts:NumbaList[float]):
+@jit()
+def _jit_one_second(concs, consts):
     """ time steps must be one second for accurate modelling """
-    # x1k10 : float
-    # x1k12 : float
-    # x1k13 : float
-    # x2k21 : float
-    # x3k31 : float
-
-    # xk1e : float
-    # xke1 : float
-
-    # x1 : float
-    # x2 : float
-    # x3 : float
-    # x0 : float
-
-    # concs:NumbaList[float]
-    # consts:NumbaList[float]
 
     x1k10 = concs[0] * consts[0]
     x1k12 = concs[0] * consts[1]
@@ -102,9 +86,11 @@ class Three:
 
     def jit_wait_time(self, time_seconds):
         """ model distribution of drug between compartments over specified time period """
-        concentrations = np.array([self.x1, self.x2, self.x3, self.xeo])
+       
         for _ in range(time_seconds):
-            self.x1, self.x2, self.x3, self.xe0 = jit_one_second(concentrations, self.constants)
+            self.x1, self.x2, self.x3, self.xe0 = _jit_one_second(np.array([self.x1, self.x2, self.x3, self.xeo]), self.constants)
+        
+
     
     def wait_time(self, time_seconds):
         """ model distribution of drug between compartments over specified time period """
@@ -116,6 +102,7 @@ class Three:
 
         xk1e : float
         xke1 : float
+
         def one_second(self):
             """ time steps must be one second for accurate modelling """
             
