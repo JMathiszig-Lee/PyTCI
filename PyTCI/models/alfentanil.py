@@ -3,8 +3,10 @@ from .base import Three
 
 class Alfentanil(Three):
     """base Alfentanil class"""
+
     def __init__(self) -> None:
         pass
+
     pass
 
 

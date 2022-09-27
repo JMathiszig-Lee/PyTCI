@@ -4,7 +4,7 @@ from math import exp
 
 
 class Remifentanil(Three):
-    """ Base Class for remifentanil models """
+    """Base Class for remifentanil models"""
 
     pass
 
@@ -48,12 +48,12 @@ class Eleveld(Remifentanil):
 
     def __init__(self, age, weight, height, sex):
         def ageing(i, age):
-            """ ageing function"""
+            """ageing function"""
             return exp(i * (age - 35))
 
         def sigmoid(x, e50, y):
-            """ sigmoid function from eleveld paper """
-            sig = (x ** y) / ((x ** y) + (e50 ** y))
+            """sigmoid function from eleveld paper"""
+            sig = (x**y) / ((x**y) + (e50**y))
             return sig
 
         # constants from paper
@@ -90,7 +90,7 @@ class Eleveld(Remifentanil):
         self.v2 = v2ref * Fsize * ageing(Θ3, age) * Fsex
         self.v3 = v3ref * Fsize * ageing(Θ4, age) * exp(Θ6 * (weight - 70))
 
-        self.Q1 = clref * Fsize ** 0.75 * Fmat * Fsex * ageing(Θ3, age)
+        self.Q1 = clref * Fsize**0.75 * Fmat * Fsex * ageing(Θ3, age)
         self.Q2 = q2ref * (self.v2 / v2ref) ** 0.75 * ageing(Θ2, age) * Fsex
         self.Q3 = q3ref * (self.v3 / v3ref) ** 0.75 * ageing(Θ2, age)
 

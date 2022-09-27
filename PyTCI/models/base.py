@@ -1,13 +1,16 @@
+from xmlrpc.server import SimpleXMLRPCDispatcher
 from numba import jit
+
 # from numba import jitclass
 from numba.experimental import jitclass
 from numba import njit
 from numba.typed import List as NumbaList
 import numpy as np
 
-@jit()
+
+@njit()
 def _jit_one_second(concs, consts):
-    """ time steps must be one second for accurate modelling """
+    """time steps must be one second for accurate modelling"""
 
     x1k10 = concs[0] * consts[0]
     x1k12 = concs[0] * consts[1]
@@ -23,16 +26,17 @@ def _jit_one_second(concs, consts):
     x3 = concs[2] + (x1k13 - x3k31)
     x0 = concs[3] + (xk1e - xke1)
 
-    return (x1, x2, x3, x0)
+    return [x1, x2, x3, x0]
 
 
 class Three:
-    """ Base 3 compartment model"""
+    """Base 3 compartment model"""
+
     def __init__(self):
-        self.x1 :float 
-        self.x2 :float
-        self.x3 :float
-        self.xeo :float
+        self.x1: float
+        self.x2: float
+        self.x3: float
+        self.xeo: float
 
         # declare variables so the linting doesnt get upset
         self.v1: float
@@ -49,10 +53,9 @@ class Three:
         self.keo: float
 
     def setup(self):
-        
 
         # Initial concentration is zero in all components
-        self.x1 = 0.0 
+        self.x1 = 0.0
         self.x2 = 0.0
         self.x3 = 0.0
         self.xeo = 0.0
@@ -65,7 +68,24 @@ class Three:
         self.k31 /= 60
         self.keo /= 60
 
+        self.x=np.array([self.x1, self.x2,self.x3,self.xeo])
+
         self.constants = np.array([self.k10, self.k12, self.k13, self.k21, self.k31, self.keo])
+        
+        self.constant_matrix = np.array(
+            [
+                [-(self.k10 + self.k12 + self.k13), self.k21, self.k31, 0],
+                [self.k12, -self.k21, 0, 0],
+                [self.k13, 0, -self.k31, 0],
+                [self.keo, 0, 0, -self.keo],
+            ]
+        )
+
+        self.concentration_matrix = np.array(
+            [[self.x1], [self.x2], [self.x3], [self.xeo]]
+        )
+
+        self.b = np.array([[1], [0], [0], [0]])
 
     def from_clearances(self):
         """
@@ -81,32 +101,34 @@ class Three:
         self.k31 = (self.k13 * self.v1) / self.v3
 
     def give_drug(self, drug_milligrams):
-        """ add bolus of drug to central compartment """
+        """add bolus of drug to central compartment"""
         self.x1 = self.x1 + drug_milligrams / self.v1
+        self.x[1] += drug_milligrams / self.v1
 
     def jit_wait_time(self, time_seconds):
-        """ model distribution of drug between compartments over specified time period """
-       
-        for _ in range(time_seconds):
-            self.x1, self.x2, self.x3, self.xe0 = _jit_one_second(np.array([self.x1, self.x2, self.x3, self.xeo]), self.constants)
+        """model distribution of drug between compartments over specified time period"""
         
+        for _ in range(time_seconds):
+            self.x += _jit_one_second(self.x, self.constants)
 
-    
+    def infusion(self, time_seconds, dose):
+        for _ in range(time_seconds):
+            self.concentration_matrix += np.dot(self.constant_matrix, self.concentration_matrix) + np.dot(self.b, dose/self.v1)
+
+
     def wait_time(self, time_seconds):
-        """ model distribution of drug between compartments over specified time period """
-        x1k10 : float
-        x1k12 : float
-        x1k13 : float
-        x2k21 : float
-        x3k31 : float
+        """model distribution of drug between compartments over specified time period"""
+        x1k10: float
+        x1k12: float
+        x1k13: float
+        x2k21: float
+        x3k31: float
 
-        xk1e : float
-        xke1 : float
+        xk1e: float
+        xke1: float
 
         def one_second(self):
-            """ time steps must be one second for accurate modelling """
-            
-
+            """time steps must be one second for accurate modelling"""
 
             x1k10 = self.x1 * self.k10
             x1k12 = self.x1 * self.k12
@@ -127,21 +149,21 @@ class Three:
             one_second(self)
 
     def reset_concs(self, old_conc):
-        """ resets concentrations using python dictionary"""
+        """resets concentrations using python dictionary"""
         self.x1 = old_conc["ox1"]
         self.x2 = old_conc["ox2"]
         self.x3 = old_conc["ox3"]
         self.xeo = old_conc["oxeo"]
 
     def zero_comps(self):
-        """ sets all compartment concentrations to 0 """
+        """sets all compartment concentrations to 0"""
         self.x1 = 0
         self.x2 = 0
         self.x3 = 0
         self.xeo = 0
 
     def effect_bolus(self, target: float):
-        """ determines size of bolus needed over 10 seconds to achieve target at ttpe """
+        """determines size of bolus needed over 10 seconds to achieve target at ttpe"""
 
         # store concentrations so we can reset after search
         old_conc = {"ox1": self.x1, "ox2": self.x2, "ox3": self.x3, "oxeo": self.xeo}
@@ -168,7 +190,7 @@ class Three:
         return round(mgpersec * 10, 2)
 
     def tenseconds(self, mgpersec: float):
-        """ gives set amount of drug every second for 10 seconds """
+        """gives set amount of drug every second for 10 seconds"""
         for _ in range(10):
             self.give_drug(mgpersec)
             self.wait_time(1)
@@ -176,7 +198,7 @@ class Three:
         return self.x1
 
     def giveoverseconds(self, mgpersec: float, secs: float):
-        """ gives set amount of drug every second for user defined period"""
+        """gives set amount of drug every second for user defined period"""
         for _ in range(secs):
             self.give_drug(mgpersec)
             self.wait_time(1)
@@ -184,7 +206,7 @@ class Three:
         return self.x1
 
     def plasma_infusion(self, target: float, time: int, period: int = 10):
-        """ returns list of infusion rates to maintain desired plasma concentration
+        """returns list of infusion rates to maintain desired plasma concentration
         inputs:
         target: desired plasma concentration in ug/min
         time: infusion duration in seconds
@@ -228,7 +250,7 @@ class Three:
         return pump_instructions
 
     def effect_target(self, target: float, time: int, period: int = 10):
-        """ returns list of infusion rates to maintain desired plasma concentration
+        """returns list of infusion rates to maintain desired plasma concentration
         inputs:
         target: desired plasma concentration in units/ml
         time: infusion duration in seconds

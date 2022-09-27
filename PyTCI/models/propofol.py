@@ -9,8 +9,9 @@ from numba.experimental import jitclass
 
 #     pass
 
+
 class Schnider(Three):
-    """ Implementation of the schnider model """
+    """Implementation of the schnider model"""
 
     # UNITS:
     # age: years
@@ -43,7 +44,7 @@ class Schnider(Three):
 
 
 class Marsh(Three):
-    """ Marsh 3 compartment Propofol Pk Model
+    """Marsh 3 compartment Propofol Pk Model
 
     Units required:
     weight (kg)
@@ -112,7 +113,7 @@ class Paedfusor(Three):
 
     Reference:
     Absalom, A, Kenny, G
-    BJA: British Journal of Anaesthesia, Volume 95, Issue 1, 1 July 2005, Pages 110, 
+    BJA: British Journal of Anaesthesia, Volume 95, Issue 1, 1 July 2005, Pages 110,
     https://doi.org/10.1093/bja/aei567
     """
 
@@ -149,7 +150,7 @@ class Eleveld(Three):
     Special methods for this model
     .venous()
     Switches from arterial(default) to venous targerting
-    
+
 
     .with_opiates()
     models co-administration with opiates
@@ -192,16 +193,16 @@ class Eleveld(Three):
         theta18 = 0.68
 
         def ageing(i, age):
-            """ ageing function"""
+            """ageing function"""
             return exp(i * (age - 35))
 
         def sigmoid(x, e50, y):
-            """ sigmoid function from eleveld paper """
-            sig = (x ** y) / ((x ** y) + (e50 ** y))
+            """sigmoid function from eleveld paper"""
+            sig = (x**y) / ((x**y) + (e50**y))
             return sig
 
         def central(i):
-            """ central function """
+            """central function"""
             return sigmoid(i, theta12, 1)
 
         # clearance maturation
@@ -239,9 +240,9 @@ class Eleveld(Three):
         self.setup()
 
     def with_opiates(self):
-        """ switches the opiate parameters
-            using this method indicates opiates are being administered concurrently 
-            
+        """switches the opiate parameters
+        using this method indicates opiates are being administered concurrently
+
         """
         opiatesv3 = exp(self.theta13 * self.age)
         opiatescl = exp(self.theta11 * self.age)
