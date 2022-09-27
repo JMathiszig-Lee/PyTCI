@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0d3702e49baeee91bf8ecb1088092ce7fdeb3d45993344f87f66955f734d5d7c"
+            "sha256": "643b80cc6fb4729b8727f012e80007b1ec911174034c807a5e2bc0c9e075a79c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,19 @@
         ]
     },
     "default": {
+        "icc-rt": {
+            "hashes": [
+                "sha256:17a173e65cee0c516358172b9cc96fe297dd54f4d6b23d57f79c62d9e105e3cf"
+            ],
+            "index": "pypi",
+            "version": "==2020.0.133"
+        },
+        "intel-openmp": {
+            "hashes": [
+                "sha256:cb9a12b0a1cb3f9c44a75959f687e548dc642a9470be3c63f73bccf291b8dcc8"
+            ],
+            "version": "==2020.0.133"
+        },
         "llvmlite": {
             "hashes": [
                 "sha256:03aee0ccd81735696474dc4f8b6be60774892a2929d6c05d093d17392c237f32",
@@ -427,7 +440,7 @@
                 "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc",
                 "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"
             ],
-            "markers": "python_version >= '3.7'",
+            "markers": "python_full_version < '3.11.0a7'",
             "version": "==2.0.1"
         },
         "tomlkit": {

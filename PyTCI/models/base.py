@@ -8,25 +8,27 @@ from numba.typed import List as NumbaList
 import numpy as np
 
 
-@njit()
-def _jit_one_second(concs, consts):
-    """time steps must be one second for accurate modelling"""
+@njit(fastmath=True)
+def _njit_wait(time, concs, consts):
+    def _jit_one_second(concs, consts):
+        """time steps must be one second for accurate modelling"""
 
-    x1k10 = concs[0] * consts[0]
-    x1k12 = concs[0] * consts[1]
-    x1k13 = concs[0] * consts[2]
-    x2k21 = concs[1] * consts[3]
-    x3k31 = concs[2] * consts[4]
+        x1k10 = concs[0] * consts[0]
+        x1k12 = concs[0] * consts[1]
+        x1k13 = concs[0] * consts[2]
+        x2k21 = concs[1] * consts[3]
+        x3k31 = concs[2] * consts[4]
 
-    xk1e = concs[0] * consts[5]
-    xke1 = concs[3] * consts[5]
+        xk1e = concs[0] * consts[5]
+        xke1 = concs[3] * consts[5]
 
-    x1 = concs[0] + (x2k21 - x1k12 + x3k31 - x1k13 - x1k10)
-    x2 = concs[1] + (x1k12 - x2k21)
-    x3 = concs[2] + (x1k13 - x3k31)
-    x0 = concs[3] + (xk1e - xke1)
+        concs[0] += x2k21 - x1k12 + x3k31 - x1k13 - x1k10
+        concs[1] += x1k12 - x2k21
+        concs[2] += x1k13 - x3k31
+        concs[3] += xk1e - xke1
 
-    return [x1, x2, x3, x0]
+    for _ in range(time):
+        _jit_one_second(concs, consts)
 
 
 class Three:
@@ -68,10 +70,12 @@ class Three:
         self.k31 /= 60
         self.keo /= 60
 
-        self.x=np.array([self.x1, self.x2,self.x3,self.xeo])
+        self.x = np.array([self.x1, self.x2, self.x3, self.xeo])
 
-        self.constants = np.array([self.k10, self.k12, self.k13, self.k21, self.k31, self.keo])
-        
+        self.constants = np.array(
+            [self.k10, self.k12, self.k13, self.k21, self.k31, self.keo]
+        )
+
         self.constant_matrix = np.array(
             [
                 [-(self.k10 + self.k12 + self.k13), self.k21, self.k31, 0],
@@ -103,50 +107,56 @@ class Three:
     def give_drug(self, drug_milligrams):
         """add bolus of drug to central compartment"""
         self.x1 = self.x1 + drug_milligrams / self.v1
-        self.x[1] += drug_milligrams / self.v1
+        self.x[0] += drug_milligrams / self.v1
+        # print(self.x1, self.x)
 
     def jit_wait_time(self, time_seconds):
         """model distribution of drug between compartments over specified time period"""
-        
-        for _ in range(time_seconds):
-            self.x += _jit_one_second(self.x, self.constants)
+        _njit_wait(time_seconds, self.x, self.constants)
+        # for _ in range(time_seconds):
+        #     _jit_one_second(self.x, self.constants)
 
     def infusion(self, time_seconds, dose):
         for _ in range(time_seconds):
-            self.concentration_matrix += np.dot(self.constant_matrix, self.concentration_matrix) + np.dot(self.b, dose/self.v1)
+            self.concentration_matrix += np.dot(
+                self.constant_matrix, self.concentration_matrix
+            ) + np.dot(self.b, dose / self.v1)
 
-
-    def wait_time(self, time_seconds):
+    def wait_time(self, time_seconds, use_jit:bool = False):
         """model distribution of drug between compartments over specified time period"""
-        x1k10: float
-        x1k12: float
-        x1k13: float
-        x2k21: float
-        x3k31: float
+        if use_jit == True:
+            _njit_wait(time_seconds, self.x, self.constants)
+        else:
+        
+            x1k10: float
+            x1k12: float
+            x1k13: float
+            x2k21: float
+            x3k31: float
 
-        xk1e: float
-        xke1: float
+            xk1e: float
+            xke1: float
 
-        def one_second(self):
-            """time steps must be one second for accurate modelling"""
+            def one_second(self):
+                """time steps must be one second for accurate modelling"""
 
-            x1k10 = self.x1 * self.k10
-            x1k12 = self.x1 * self.k12
-            x1k13 = self.x1 * self.k13
-            x2k21 = self.x2 * self.k21
-            x3k31 = self.x3 * self.k31
+                x1k10 = self.x1 * self.k10
+                x1k12 = self.x1 * self.k12
+                x1k13 = self.x1 * self.k13
+                x2k21 = self.x2 * self.k21
+                x3k31 = self.x3 * self.k31
 
-            xk1e = self.x1 * self.keo
-            xke1 = self.xeo * self.keo
+                xk1e = self.x1 * self.keo
+                xke1 = self.xeo * self.keo
 
-            self.x1 = self.x1 + (x2k21 - x1k12 + x3k31 - x1k13 - x1k10)
-            self.x2 = self.x2 + (x1k12 - x2k21)
-            self.x3 = self.x3 + (x1k13 - x3k31)
+                self.x1 = self.x1 + (x2k21 - x1k12 + x3k31 - x1k13 - x1k10)
+                self.x2 = self.x2 + (x1k12 - x2k21)
+                self.x3 = self.x3 + (x1k13 - x3k31)
 
-            self.xeo = self.xeo + (xk1e - xke1)
+                self.xeo = self.xeo + (xk1e - xke1)
 
-        for _ in range(time_seconds):
-            one_second(self)
+            for _ in range(time_seconds):
+                one_second(self)
 
     def reset_concs(self, old_conc):
         """resets concentrations using python dictionary"""
