@@ -54,18 +54,18 @@ class Three:
         def one_second(self):
             """ time steps must be one second for accurate modelling """
 
-            x1k10 = self.x1 * self.k10
-            x1k12 = self.x1 * self.k12
-            x1k13 = self.x1 * self.k13
-            x2k21 = self.x2 * self.k21
-            x3k31 = self.x3 * self.k31
+            dx1dt = ((self.k21*self.x2*self.v2 + self.k31*self.x3*self.v3) \
+                    - (self.k10*self.x1*self.v1 + self.k12*self.x1*self.v1 + self.k13*self.x1*self.v1)) \
+                    / self.v1
+            dx2dt = (self.k12*self.x1*self.v1 - self.k21*self.x2*self.v2) / self.v2
+            dx3dt = (self.k13*self.x1*self.v1 - self.k31*self.x3*self.v3) / self.v3
 
             xk1e = self.x1 * self.keo
             xke1 = self.xeo * self.keo
 
-            self.x1 = self.x1 + (x2k21 - x1k12 + x3k31 - x1k13 - x1k10)
-            self.x2 = self.x2 + (x1k12 - x2k21)
-            self.x3 = self.x3 + (x1k13 - x3k31)
+            self.x1 += dx1dt
+            self.x2 += dx2dt
+            self.x3 += dx3dt
 
             self.xeo = self.xeo + (xk1e - xke1)
 
