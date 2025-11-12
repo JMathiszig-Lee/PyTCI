@@ -234,7 +234,7 @@ class Eleveld(Propofol):
             )
 
         self.Q2 = (
-            theta05 * (self.v2 / v2ref) ** 0.75 * (1 + theta16 * (1 - q3mat / q3matref))
+            theta05 * (self.v2 / v2ref) ** 0.75 * (1 + theta16 * (1 - q3mat))
         )
         self.Q3 = theta06 * (self.v3 / v3ref) ** 0.75 * (q3mat / q3matref)
 
@@ -255,6 +255,8 @@ class Eleveld(Propofol):
         self.Q1 *= opiatescl
         
         self.from_clearances()
+        self.setup()
+        self.keo *= 60
 
 
 
