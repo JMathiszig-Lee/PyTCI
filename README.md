@@ -23,7 +23,11 @@ python -m benchmarks.simulation
 Package metadata lives in `pyproject.toml`. CI tests Python 3.11, 3.12, 3.13 and
 3.14. Pushing a tag matching the package version (for example `v1.2.0`)
 runs the publishing workflow after tests, formatting and distribution checks.
-It uses the repository secrets `PYPI_USERNAME` and `PYPI_PASSWORD`.
+It uses the repository secret `PYPI_PASSWORD`, containing a PyPI API token
+with permission to upload PyTCI, and the required username `__token__`.
+Account passwords and TestPyPI tokens cannot publish to PyPI.
+For the original `v1.2.0` workflow, also set the legacy `PYPI_USERNAME` secret
+to `__token__` before rerunning its failed upload job.
 The optional Pipenv configuration targets 3.14; regenerate its lockfile with
 `pipenv lock` if using Pipenv (the obsolete Python 3.9 lockfile was removed).
 

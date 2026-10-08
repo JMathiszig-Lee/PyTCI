@@ -37,6 +37,6 @@ jobs:
         run: python -m twine check dist/*
       - name: Publish
         env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: python -m twine upload --non-interactive dist/*
