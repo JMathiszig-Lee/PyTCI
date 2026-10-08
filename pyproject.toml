@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PyTCI"
+version = "1.2.0"
+description = "A package for target controlled infusion simulation"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["license.txt"]
+authors = [{name = "Jakob Mathiszig-Lee", email = "jakob@mathisziglee.co.uk"}]
+dependencies = ["numpy>=1.26.4", "scipy>=1.16.3"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/JMathiszig-Lee/PyTCI"
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov>=6", "black>=25", "build>=1.2"]
+
+[tool.setuptools.packages.find]
+include = ["PyTCI*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.black]
+target-version = ["py311"]

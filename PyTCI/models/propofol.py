@@ -35,7 +35,7 @@ class Schnider(Propofol):
         )
         self.k12 = 0.302 - 0.0056 * (age - 53)
         self.k13 = 0.196
-        self.k21 = 1.29 - 0.024 * (age - 53) / self.v2
+        self.k21 = (1.29 - 0.024 * (age - 53)) / self.v2
         self.k31 = 0.0035
 
         self.keo = 0.456
@@ -198,7 +198,7 @@ class Eleveld(Propofol):
 
         def sigmoid(x, e50, y):
             """sigmoid function from eleveld paper"""
-            sig = (x ** y) / ((x ** y) + (e50 ** y))
+            sig = (x**y) / ((x**y) + (e50**y))
             return sig
 
         def central(i):
@@ -244,6 +244,9 @@ class Eleveld(Propofol):
         using this method indicates opiates are being administered concurrently
 
         """
+        if getattr(self, "_with_opiates", False):
+            return
+        self._with_opiates = True
         opiatesv3 = exp(self.theta13 * self.age)
         opiatescl = exp(self.theta11 * self.age)
 

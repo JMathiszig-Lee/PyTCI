@@ -16,7 +16,10 @@ def test_schnider():
 
     for _ in range(60):
         testpatient.wait_time(1)
-    assert round(testpatient.x1, 2) == 22.03
+    assert testpatient.k21 == pytest.approx(
+        (1.29 - 0.024 * (40 - 53)) / testpatient.v2 / 60
+    )
+    assert round(testpatient.x1, 2) == 18.22
 
 
 def test_marsh():

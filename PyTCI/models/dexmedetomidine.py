@@ -64,3 +64,44 @@ class Dyck(Dexmed):
         self.keo = 0
 
         self.setup()
+
+
+class Morse(Dexmed):
+    """Morse, Cortinez & Anderson (2020) universal dexmedetomidine PK model.
+
+    age: years, weight: kg, height: cm, sex: 'm'/'f'. Optional pma is
+    postmenstrual age in weeks; default assumes birth at 40 weeks.
+    Dose units: micrograms; Cp: micrograms/L (= ng/mL). No PD/keo was
+    estimated in this model, so effect-site targeting is unavailable.
+
+    Table 1 and equations (9)-(16), doi:10.3390/jcm9113480.
+    Development population: 40.6 postmenstrual weeks to 70.8 years, 3.1-152 kg.
+    """
+
+    def __init__(self, age, weight, height, sex, *, pma=None):
+        import warnings
+        from PyTCI.weights.leanbodymass import fat_free_mass
+
+        ffm = fat_free_mass(age, height, weight, sex)
+        pma = 40 + age * 52 if pma is None else pma
+        if not math.isfinite(pma) or pma <= 0:
+            raise ValueError("pma must be finite and positive")
+        if pma < 40.6 or age > 70.8 or not 3.1 <= weight <= 152:
+            warnings.warn(
+                "Covariates outside the Morse model development population",
+                stacklevel=2,
+            )
+        nfm = ffm + 0.293 * (weight - ffm)
+        nfm_reference = 56.1 + 0.293 * (70 - 56.1)
+        volume_scale = nfm / nfm_reference
+        clearance_scale = (ffm / 56.1) ** 0.75
+        self.v1 = 25.2 * volume_scale
+        self.v2 = 34.4 * volume_scale
+        self.v3 = 65.4 * volume_scale
+        # The maturation factor applies to elimination clearance, not Q2/Q3.
+        self.Q1 = 0.897 * clearance_scale * pma / (52.4 + pma)
+        self.Q2 = 1.68 * clearance_scale
+        self.Q3 = 0.62 * clearance_scale
+        self.keo = 0.0
+        self.from_clearances()
+        self.setup()

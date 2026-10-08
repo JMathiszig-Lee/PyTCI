@@ -1,23 +1,5 @@
-import setuptools
+"""Compatibility entry point; package metadata lives in pyproject.toml."""
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+from setuptools import setup
 
-setuptools.setup(
-    name="PyTCI",
-    version="1.1",
-    author="Jakob Mathiszig-Lee",
-    author_email="jakob@mathisziglee.co.uk",
-    description="A package for target controlled infusions",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/JMathiszig-Lee/PyTCI",
-    packages=setuptools.find_packages(),
-    classifiers=[
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ],
-)
+setup()

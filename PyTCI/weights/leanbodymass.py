@@ -124,3 +124,37 @@ def alsallami(age: float, height: float, weight: float, sex: str) -> float:
         )
 
     return alsal
+
+
+def fat_free_mass(age: float, height: float, weight: float, sex: str) -> float:
+    """Unrounded Al-Sallami FFM (kg), including the age-zero limiting value.
+
+    The older alsallami() API retains its rounded intermediate calculations.
+    This version is intended for PK covariates, where rounding alters scaling.
+    Source: Al-Sallami lean-body-mass equations as reproduced
+    in Morse et al., doi:10.3390/jcm9113480, equations (9) and (10).
+    """
+    from math import isfinite
+
+    if sex not in ("m", "f"):
+        raise ValueError("sex must be 'm' or 'f'")
+    if not all(isfinite(x) for x in (age, height, weight)):
+        raise ValueError("age, height and weight must be finite")
+    if age < 0 or height <= 0 or weight <= 0:
+        raise ValueError("age must be nonnegative; height and weight must be positive")
+    bodymass = weight / (height / 100) ** 2
+    if sex == "m":
+        maturation = (age / 13.4) ** 12.7
+        return (
+            (0.88 + 0.12 * maturation / (1 + maturation))
+            * 9270
+            * weight
+            / (6680 + 216 * bodymass)
+        )
+    maturation = (age / 7.1) ** 1.1
+    return (
+        (1.11 - 0.11 * maturation / (1 + maturation))
+        * 9270
+        * weight
+        / (8780 + 244 * bodymass)
+    )
